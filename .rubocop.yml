@@ -1,0 +1,12 @@
+LineLength:
+  Max: 100
+
+Encoding:
+  Enabled: true
+
+Style/HashSyntax:
+  EnforcedStyle: hash_rockets
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
