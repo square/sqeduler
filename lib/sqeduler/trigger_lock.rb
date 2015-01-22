@@ -1,8 +1,8 @@
 # encoding: utf-8
-# Super simple facade to match RufusScheduler's expectations of how
-# a lock behaves.
 module Sqeduler
   module Scheduler
+    # Super simple facade to match RufusScheduler's expectations of how
+    # a lock behaves.
     class TriggerLock < RedisLock
       SCHEDULER_LOCK_KEY = "sidekiq_scheduler_lock".freeze
 
@@ -15,12 +15,7 @@ module Sqeduler
         # - not block
         # - return true if already acquired
         # - refresh the lock if already acquired
-        if locked?
-          refresh
-        else
-          super
-        end
-        locked?
+        refresh || super
       end
 
       private

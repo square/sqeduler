@@ -1,3 +1,5 @@
+# encoding: utf-8
+# Fake worker class for specs
 class FakeWorker < Sqeduler::BaseWorker
   JOB_RUN_PATH =            "/tmp/job_run"
   JOB_BEFORE_START_PATH =   "/tmp/job_before_start"

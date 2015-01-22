@@ -1,8 +1,8 @@
 # encoding: utf-8
-# Sqeduler::BaseWorker is class that provides common infrastructure for Sidekiq workers:
-# - Synchronization of jobs across multiple hosts `Sqeduler::BaseWorker.synchronize_jobs`.
-# - Basic callbacks for job events that child classes can observe.
 module Sqeduler
+  # Sqeduler::BaseWorker is class that provides common infrastructure for Sidekiq workers:
+  # - Synchronization of jobs across multiple hosts `Sqeduler::BaseWorker.synchronize_jobs`.
+  # - Basic callbacks for job events that child classes can observe.
   class BaseWorker
     def self.synchronize_jobs(mode, opts = {})
       @synchronize_jobs_mode = mode
@@ -35,9 +35,9 @@ module Sqeduler
       Service.logger.info "Starting #{self.class.name} #{start_time}"
       if self.class.synchronize_jobs_mode == :one_at_a_time
         if self.class.synchronize_jobs_expiration
-          start = Time.current
+          start = Time.now
           do_work_with_lock(*args)
-          duration = Time.current - start
+          duration = Time.now - start
           on_schedule_collision if duration > self.class.synchronize_jobs_expiration
         else
           do_work_with_lock(*args)
@@ -48,11 +48,7 @@ module Sqeduler
       Service.logger.info "#{self.class.name} completed at #{end_time}. Total time #{total_time}"
       on_success
     rescue => e
-      on_failure(e)
-      Service.logger.error "#{self.class.name} failed!"
-      Service.logger.error e
-      notify_exception(e)
-      raise e
+      notify_and_raise(e)
     end
 
     private
@@ -92,11 +88,11 @@ module Sqeduler
     end
 
     def start_time
-      @start_time ||= Time.current
+      @start_time ||= Time.now
     end
 
     def end_time
-      @end_time ||= Time.current
+      @end_time ||= Time.now
     end
 
     def total_time
@@ -104,7 +100,15 @@ module Sqeduler
     end
 
     def time_elapsed
-      time_duration(Time.current - start_time)
+      time_duration(Time.now - start_time)
+    end
+
+    def notify_and_raise(e)
+      on_failure(e)
+      Service.logger.error "#{self.class.name} failed!"
+      Service.logger.error e
+      notify_exception(e)
+      raise e
     end
 
     private

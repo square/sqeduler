@@ -5,7 +5,10 @@ Gem::Specification.new do |gem|
   gem.name          = "sqeduler"
   gem.version       = Sqeduler::VERSION
   gem.summary       = "Common Sidekiq infrastructure for multi-host applications."
-  gem.description   = "Works with Sidekiq scheduler to provides a highly available scheduler that can be run on multiple hosts. Also provides a convenient abstract class for Sidekiq workers."
+  gem.description   = <<-DESC
+  Works with Sidekiq scheduler to provides a highly available scheduler that can be run on
+  multiple hosts. Also provides a convenient abstract class for Sidekiq workers.
+  DESC
   gem.license       = "Apache"
   gem.authors       = '["Jared Jenkins"]'
   gem.email         = "jaredjenkins@squareup.com"

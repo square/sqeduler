@@ -17,15 +17,15 @@ RSpec.describe Sqeduler::Scheduler::TriggerLock do
       )
     end
 
+    let(:trigger_lock_1) {  described_class.new }
+    let(:trigger_lock_2) {  described_class.new }
+
     it "should get the lock" do
-      trigger_lock_1 = described_class.new
       expect(trigger_lock_1.lock).to be true
-      trigger_lock_2 = described_class.new
       expect(trigger_lock_2.lock).to be false
     end
 
     it "should set the lock expiration to be 61 seconds" do
-      trigger_lock_1 = described_class.new
       Timecop.freeze(Time.new(1970, 1, 1)) do
         expect { trigger_lock_1.lock }.to change {
           TEST_REDIS.get(described_class::SCHEDULER_LOCK_KEY).to_f
@@ -35,20 +35,40 @@ RSpec.describe Sqeduler::Scheduler::TriggerLock do
       end
     end
 
+    it "should not be the owner if the lock has expired" do
+      time = Time.new(1970, 1, 1)
+      Timecop.freeze(time)
+      expect(trigger_lock_1.lock).to be true
+      expect(trigger_lock_1.locked?).to be true
+      Timecop.travel(time + 61.seconds)
+      expect(trigger_lock_1.locked?).to be false
+      Timecop.return
+    end
+
     it "should refresh the lock expiration time when it is the owner" do
-      trigger_lock_1 = described_class.new
       expect(trigger_lock_1.lock).to be true
       old_expiration_time = TEST_REDIS.get(described_class::SCHEDULER_LOCK_KEY).to_f
       sleep 1
-      expect(trigger_lock_1.lock).to be true
+      expect(trigger_lock_1.refresh).to be true
       new_expiration_time = TEST_REDIS.get(described_class::SCHEDULER_LOCK_KEY).to_f
       expect(old_expiration_time < new_expiration_time).to be true
+    end
 
-      trigger_lock_2 = described_class.new
+    it "should not refersh the lock when it is not owner" do
+      expect(trigger_lock_1.lock).to be true
       expect(trigger_lock_2.lock).to be false
       expect { trigger_lock_2.lock }.to_not change {
         TEST_REDIS.get(described_class::SCHEDULER_LOCK_KEY).to_f
       }
+    end
+
+    it "should not refresh the lock, when the lock has expired" do
+      time = Time.new(1970, 1, 1)
+      Timecop.freeze(time)
+      expect(trigger_lock_1.lock).to be true
+      expect(trigger_lock_1.locked?).to be true
+      Timecop.travel(time + 61.seconds)
+      expect(trigger_lock_1.refresh).to be false
     end
   end
 end

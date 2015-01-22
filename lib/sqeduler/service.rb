@@ -43,7 +43,9 @@ module Sqeduler
 
       def start_scheduler
         logger.info "Initializing Sidekiq::Scheduler with schedule #{config.schedule_path}"
-        ::Sidekiq::Scheduler.rufus_scheduler_options = { :trigger_lock => Scheduler::TriggerLock.new }
+        ::Sidekiq::Scheduler.rufus_scheduler_options = {
+          :trigger_lock => Scheduler::TriggerLock.new
+        }
         ::Sidekiq.schedule = YAML.load_file(config.schedule_path)
       end
     end
