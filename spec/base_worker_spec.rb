@@ -45,8 +45,8 @@ RSpec.describe Sqeduler::BaseWorker do
                                     :timeout => timeout.seconds
       end
 
-      let(:expiration) { work_time * 4 }
-      let(:work_time) { 0.1 }
+      let(:expiration) { 2 } # expiration must be at least 1 second
+      let(:work_time) { 0.3 }
 
       subject do
         threads = []
@@ -92,7 +92,7 @@ RSpec.describe Sqeduler::BaseWorker do
         end
 
         context "timeout is greater than work_time" do
-          let(:timeout) { work_time * 2 }
+          let(:timeout) { work_time * 4 }
 
           it "no worker should be blocked" do
             subject
@@ -120,7 +120,7 @@ RSpec.describe Sqeduler::BaseWorker do
           end
 
           context "expiration too short" do
-            let(:expiration) { work_time / 2 }
+            let(:work_time) { 2 }
 
             it "no worker should be blocked" do
               subject
@@ -155,7 +155,7 @@ RSpec.describe Sqeduler::BaseWorker do
         let(:wait_time) { work_time }
 
         context "timeout is less than work_time (too short)" do
-          let(:timeout) { work_time / 2 }
+          let(:timeout) { work_time }
 
           it "no workers should be blocked" do
             subject
@@ -208,7 +208,7 @@ RSpec.describe Sqeduler::BaseWorker do
           end
 
           context "expiration too short" do
-            let(:expiration) { work_time / 2 }
+            let(:work_time) { 2 }
 
             it "no worker should be blocked" do
               subject

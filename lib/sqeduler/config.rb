@@ -19,7 +19,7 @@ module Sqeduler
 
     def sync_pool
       return @sync_pool if defined?(@sync_pool)
-      pool_size = fetch_or_raise(:sync_pool_timeout)
+      pool_size = fetch_or_raise(:sync_pool_size)
       pool_timeout = fetch_or_raise(:sync_pool_timeout)
       @sync_pool = ConnectionPool.new(
                     :size => pool_size,

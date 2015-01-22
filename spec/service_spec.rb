@@ -40,7 +40,7 @@ RSpec.describe Sqeduler::Service do
         subject
         expect(Sidekiq::Scheduler.rufus_scheduler_options).to have_key(:trigger_lock)
         expect(Sidekiq::Scheduler.rufus_scheduler_options[:trigger_lock]).to be_kind_of(
-          Sqeduler::Scheduler::TriggerLock
+          Sqeduler::TriggerLock
         )
       end
     end

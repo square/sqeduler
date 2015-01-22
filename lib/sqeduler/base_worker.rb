@@ -83,7 +83,9 @@ module Sqeduler
         do_work(*args)
       end
     rescue RedisLock::LockTimeoutError
-      Service.logger.warn "#{self.class.name} unable to acquire lock '#{self.class.lock_name(*args)}'. Aborting."
+      Service.logger.warn(
+        "#{self.class.name} unable to acquire lock '#{self.class.lock_name(*args)}'. Aborting."
+      )
       on_lock_timeout
     end
 

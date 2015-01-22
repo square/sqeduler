@@ -1,7 +1,7 @@
 # encoding: utf-8
 require "spec_helper"
 
-RSpec.describe Sqeduler::Scheduler::TriggerLock do
+RSpec.describe Sqeduler::TriggerLock do
   context "#lock" do
     subject { described_class.new.lock }
 
@@ -16,59 +16,69 @@ RSpec.describe Sqeduler::Scheduler::TriggerLock do
       )
     end
 
-    let(:trigger_lock_1) {  described_class.new }
-    let(:trigger_lock_2) {  described_class.new }
+    let(:trigger_lock_1) { described_class.new }
+    let(:trigger_lock_2) { described_class.new }
 
     it "should get the lock" do
-      expect(trigger_lock_1.lock).to be true
-      expect(trigger_lock_2.lock).to be false
-    end
+      lock_successes = [trigger_lock_1, trigger_lock_2].map do |trigger_lock|
+        Thread.new { trigger_lock.lock }
+      end.map(&:value)
 
-    it "should set the lock expiration to be 61 seconds" do
-      Timecop.freeze(Time.new(1970, 1, 1)) do
-        expect { trigger_lock_1.lock }.to change {
-          TEST_REDIS.get(described_class::SCHEDULER_LOCK_KEY).to_f
-        }.to(
-          (Time.now + 60.seconds + 1.seconds).to_f
-        )
-      end
+      expect(lock_successes).to match_array([true, false])
     end
 
     it "should not be the owner if the lock has expired" do
-      Timecop.freeze(Time.new(1970, 1, 1)) do
-        expect(trigger_lock_1.lock).to be true
-        expect(trigger_lock_1.locked?).to be true
-        Timecop.travel(61.seconds.from_now) do
-          expect(trigger_lock_1.refresh).to be false
-        end
-      end
+      allow(trigger_lock_1).to receive(:expiration).and_return(1)
+      expect(trigger_lock_1.lock).to be true
+      expect(trigger_lock_1.locked?).to be true
+      sleep 1
+      expect(trigger_lock_1.locked?).to be false
     end
 
     it "should refresh the lock expiration time when it is the owner" do
+      allow(trigger_lock_1).to receive(:expiration).and_return(1)
       expect(trigger_lock_1.lock).to be true
-      old_expiration_time = TEST_REDIS.get(described_class::SCHEDULER_LOCK_KEY).to_f
       sleep 1
+      expect(trigger_lock_1.locked?).to be false
       expect(trigger_lock_1.refresh).to be true
-      new_expiration_time = TEST_REDIS.get(described_class::SCHEDULER_LOCK_KEY).to_f
-      expect(old_expiration_time < new_expiration_time).to be true
     end
 
-    it "should not refersh the lock when it is not owner" do
-      expect(trigger_lock_1.lock).to be true
-      expect(trigger_lock_2.lock).to be false
-      expect { trigger_lock_2.lock }.to_not change {
-        TEST_REDIS.get(described_class::SCHEDULER_LOCK_KEY).to_f
-      }
-    end
-
-    it "should not refresh the lock, when the lock has expired" do
-      Timecop.freeze(Time.new(1970, 1, 1)) do
-        expect(trigger_lock_1.lock).to be true
-        expect(trigger_lock_1.locked?).to be true
-        Timecop.travel(61.seconds.from_now) do
-          expect(trigger_lock_1.refresh).to be false
-        end
+    it "should not refresh the lock when it is not owner" do
+      threads = []
+      threads << Thread.new do
+        allow(trigger_lock_1).to receive(:expiration).and_return(1)
+        trigger_lock_1.lock
+        sleep 1.1
       end
+      threads << Thread.new do
+        sleep 1
+        trigger_lock_2.lock
+      end
+      threads.each(&:join)
+      expect(trigger_lock_2.locked?).to be(true)
+      expect(trigger_lock_1.refresh).to be(false)
+    end
+
+    it "should release the lock when it is the owner" do
+      expect(trigger_lock_1.lock).to be true
+      expect(trigger_lock_1.unlock).to be true
+      expect(trigger_lock_1.locked?).to be false
+    end
+
+    it "should not release the lock when it is the owner" do
+      threads = []
+      threads << Thread.new do
+        allow(trigger_lock_1).to receive(:expiration).and_return(1)
+        trigger_lock_1.lock
+        sleep 1
+      end
+      threads << Thread.new do
+        sleep 1
+        trigger_lock_2.lock
+      end
+      threads.each(&:join)
+      expect(trigger_lock_2.locked?).to be(true)
+      expect(trigger_lock_1.unlock).to be(false)
     end
   end
 end
