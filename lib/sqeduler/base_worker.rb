@@ -108,7 +108,7 @@ module Sqeduler
       Service.logger.error "#{self.class.name} failed!"
       Service.logger.error e
       notify_exception(e)
-      raise e
+      fail e
     end
 
     private

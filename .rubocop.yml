@@ -1,3 +1,5 @@
+inherit_from: .rubocop_todo.yml
+
 LineLength:
   Max: 100
 
@@ -9,4 +11,3 @@ Style/HashSyntax:
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes
-

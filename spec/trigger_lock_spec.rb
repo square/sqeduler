@@ -1,6 +1,5 @@
 # encoding: utf-8
 require "spec_helper"
-require "timecop"
 
 RSpec.describe Sqeduler::Scheduler::TriggerLock do
   context "#lock" do
@@ -36,13 +35,13 @@ RSpec.describe Sqeduler::Scheduler::TriggerLock do
     end
 
     it "should not be the owner if the lock has expired" do
-      time = Time.new(1970, 1, 1)
-      Timecop.freeze(time)
-      expect(trigger_lock_1.lock).to be true
-      expect(trigger_lock_1.locked?).to be true
-      Timecop.travel(time + 61.seconds)
-      expect(trigger_lock_1.locked?).to be false
-      Timecop.return
+      Timecop.freeze(Time.new(1970, 1, 1)) do
+        expect(trigger_lock_1.lock).to be true
+        expect(trigger_lock_1.locked?).to be true
+        Timecop.travel(61.seconds.from_now) do
+          expect(trigger_lock_1.refresh).to be false
+        end
+      end
     end
 
     it "should refresh the lock expiration time when it is the owner" do
@@ -63,12 +62,13 @@ RSpec.describe Sqeduler::Scheduler::TriggerLock do
     end
 
     it "should not refresh the lock, when the lock has expired" do
-      time = Time.new(1970, 1, 1)
-      Timecop.freeze(time)
-      expect(trigger_lock_1.lock).to be true
-      expect(trigger_lock_1.locked?).to be true
-      Timecop.travel(time + 61.seconds)
-      expect(trigger_lock_1.refresh).to be false
+      Timecop.freeze(Time.new(1970, 1, 1)) do
+        expect(trigger_lock_1.lock).to be true
+        expect(trigger_lock_1.locked?).to be true
+        Timecop.travel(61.seconds.from_now) do
+          expect(trigger_lock_1.refresh).to be false
+        end
+      end
     end
   end
 end
