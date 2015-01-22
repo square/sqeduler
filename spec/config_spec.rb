@@ -9,15 +9,15 @@ RSpec.describe Sqeduler::Config do
 
     let(:options) do
       {
-        :logger                 => double,
-        :schedule_path          => "/tmp/schedule.yaml",
-        :exception_notifier     => proc { |e| puts e },
-        :redis_config           => {
+        :logger => double,
+        :schedule_path => "/tmp/schedule.yaml",
+        :exception_notifier => proc { |e| puts e },
+        :redis_config => {
           :host => "localhost",
-          :db   => 1
+          :db => 1
         },
-        :sync_pool_size        => 1,
-        :sync_pool_timeout     => 2
+        :sync_pool_size => 1,
+        :sync_pool_timeout => 2
       }.merge(extras)
     end
 

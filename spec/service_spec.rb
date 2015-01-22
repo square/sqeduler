@@ -18,9 +18,9 @@ RSpec.describe Sqeduler::Service do
 
       before do
         Sqeduler::Service.config = Sqeduler::Config.new(
-          :redis_config       => REDIS_CONFIG,
-          :logger             => logger,
-          :schedule_path      => schedule_filepath,
+          :redis_config => REDIS_CONFIG,
+          :logger => logger,
+          :schedule_path => schedule_filepath,
           :exception_notifier => proc { |e| puts e }
         )
       end

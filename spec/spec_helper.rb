@@ -1,8 +1,8 @@
 # encoding: utf-8
 
+require "pry"
 require "rspec"
 require "sqeduler"
-require "pry"
 
 REDIS_CONFIG = {
   :host => "localhost",

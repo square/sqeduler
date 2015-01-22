@@ -42,7 +42,7 @@ RSpec.describe Sqeduler::BaseWorker do
       before do
         FakeWorker.synchronize_jobs :one_at_a_time,
                                     :expiration => expiration.seconds,
-                                    :timeout    => timeout.seconds
+                                    :timeout => timeout.seconds
       end
 
       let(:expiration) { work_time * 4 }

@@ -15,9 +15,11 @@ Provides common infrastructure for using Sidekiq scheduling across multiple host
 ## Examples
 
 To install this gem with necessary forks:
+
 ```ruby
 gem 'sqeduler'
-gem 'sidekiq-scheduler', :github => 'ecin/sidekiq-scheduler', :branch => 'ecin/redis-lock' # https://github.com/Moove-it/sidekiq-scheduler/pull/38
+# https://github.com/Moove-it/sidekiq-scheduler/pull/38
+gem 'sidekiq-scheduler', :github => 'ecin/sidekiq-scheduler', :branch => 'ecin/redis-lock'
 ```
 
 To use just use `Sidekiq` and `Sidekiq::Scheduler`:
