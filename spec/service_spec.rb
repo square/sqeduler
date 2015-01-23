@@ -43,6 +43,18 @@ RSpec.describe Sqeduler::Service do
           Sqeduler::TriggerLock
         )
       end
+
+      context "redis version is too low" do
+        before do
+          allow_any_instance_of(Redis).to receive(:info).and_return(
+            "redis_version" => "2.6.11"
+          )
+        end
+
+        it "should raise" do
+          expect { subject }.to raise_error
+        end
+      end
     end
   end
 end

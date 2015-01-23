@@ -2,6 +2,7 @@
 module Sqeduler
   class Service
     SCHEDULER_TIMEOUT = 60
+    MINIMUM_REDIS_VERSION = "2.6.12"
 
     class << self
       attr_accessor :config
@@ -14,11 +15,21 @@ module Sqeduler
         fail "No config provided" unless config
         start_sidekiq_server
         start_sidekiq_client
+        verify_redis
         start_scheduler
       end
 
       def handle_exception(e)
         config.exception_notifier(e)
+      end
+
+      def verify_redis
+        ::Sidekiq.redis do |redis|
+          version = redis.info["redis_version"]
+          unless Gem::Version.new(version) >= Gem::Version.new(MINIMUM_REDIS_VERSION)
+            fail "Must be using redis >= #{MINIMUM_REDIS_VERSION}"
+          end
+        end
       end
 
       def start_sidekiq_server
