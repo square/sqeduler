@@ -8,8 +8,8 @@ RSpec.describe Sqeduler::TriggerLock do
     before do
       config = double
       allow(Sqeduler::Service).to receive(:config).and_return(config)
-      allow(config).to receive(:redis_config).and_return(
-        REDIS_CONFIG
+      allow(config).to receive(:sync_pool).and_return(
+        ConnectionPool.new(:timeout => 1, :size => 2) { Redis.new(REDIS_CONFIG) }
       )
       allow(config).to receive(:logger).and_return(
         Logger.new(STDOUT).tap { |l| l.level = Logger::DEBUG }
@@ -65,7 +65,7 @@ RSpec.describe Sqeduler::TriggerLock do
       expect(trigger_lock_1.locked?).to be false
     end
 
-    it "should not release the lock when it is the owner" do
+    it "should not release the lock when it is not the owner" do
       threads = []
       threads << Thread.new do
         allow(trigger_lock_1).to receive(:expiration_milliseconds).and_return(1000)
@@ -73,7 +73,7 @@ RSpec.describe Sqeduler::TriggerLock do
         sleep 1
       end
       threads << Thread.new do
-        sleep 1
+        sleep 1.1
         trigger_lock_2.lock
       end
       threads.each(&:join)

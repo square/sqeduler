@@ -16,14 +16,5 @@ module Sqeduler
       # - refresh the lock if already acquired
       refresh || super
     end
-
-    private
-
-    def redis_pool
-      # uses a separate connection pool
-      @pool ||= ConnectionPool.new(:timeout => 0, :size => 1) do
-        Redis.new(Service.config.redis_config)
-      end
-    end
   end
 end
