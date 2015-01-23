@@ -18,9 +18,13 @@ module Sqeduler
     end
 
     def lock
-      Service.logger.info(
-        "Try to acquire lock with #{key}, expiration: #{expiration} sec, timeout: #{timeout} sec"
-      )
+      message = if @expiration
+        "Try to acquire lock with #{key}, expiration: #{@expiration} sec, timeout: #{timeout} sec"
+      else
+        "Try to acquire lock with #{key}, expiration: none, timeout: #{timeout} sec"
+      end
+      Service.logger.info message
+
       return true if locked?
       if poll_for_lock
         Service.logger.info "Acquired lock #{key} with value #{lock_value}"
@@ -76,9 +80,9 @@ module Sqeduler
       end
     end
 
-    def expiration
+    def expiration_milliseconds
       # expiration needs to be an integer
-      @expiration ? @expiration.to_i : 0
+      @expiration ? (@expiration * 1000).to_i : 0
     end
 
     private
@@ -101,7 +105,7 @@ module Sqeduler
 
     def take_lock
       redis_pool.with do |redis|
-        redis.set(key, lock_value, :nx => true, :ex => expiration)
+        redis.set(key, lock_value, :nx => true, :px => expiration_milliseconds)
       end
     end
 

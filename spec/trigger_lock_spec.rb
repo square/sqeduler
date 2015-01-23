@@ -28,7 +28,7 @@ RSpec.describe Sqeduler::TriggerLock do
     end
 
     it "should not be the owner if the lock has expired" do
-      allow(trigger_lock_1).to receive(:expiration).and_return(1)
+      allow(trigger_lock_1).to receive(:expiration_milliseconds).and_return(1000)
       expect(trigger_lock_1.lock).to be true
       expect(trigger_lock_1.locked?).to be true
       sleep 1
@@ -36,7 +36,7 @@ RSpec.describe Sqeduler::TriggerLock do
     end
 
     it "should refresh the lock expiration time when it is the owner" do
-      allow(trigger_lock_1).to receive(:expiration).and_return(1)
+      allow(trigger_lock_1).to receive(:expiration_milliseconds).and_return(1000)
       expect(trigger_lock_1.lock).to be true
       sleep 1
       expect(trigger_lock_1.locked?).to be false
@@ -46,7 +46,7 @@ RSpec.describe Sqeduler::TriggerLock do
     it "should not refresh the lock when it is not owner" do
       threads = []
       threads << Thread.new do
-        allow(trigger_lock_1).to receive(:expiration).and_return(1)
+        allow(trigger_lock_1).to receive(:expiration_milliseconds).and_return(1000)
         trigger_lock_1.lock
         sleep 1.1
       end
@@ -68,7 +68,7 @@ RSpec.describe Sqeduler::TriggerLock do
     it "should not release the lock when it is the owner" do
       threads = []
       threads << Thread.new do
-        allow(trigger_lock_1).to receive(:expiration).and_return(1)
+        allow(trigger_lock_1).to receive(:expiration_milliseconds).and_return(1000)
         trigger_lock_1.lock
         sleep 1
       end
