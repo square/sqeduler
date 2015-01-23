@@ -1,7 +1,7 @@
 # encoding: utf-8
 module Sqeduler
   # Uses eval_sha to execute server-side scripts on redis.
-  # Avoids some of the potentially racey and brittle depencies on Time-based
+  # Avoids some of the potentially racey and brittle dependencies on Time-based
   # redis locks in other locking libraries.
   class RedisLock
     include RedisScripts
