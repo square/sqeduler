@@ -37,7 +37,7 @@ RSpec.describe Sqeduler::BaseWorker do
     maybe_cleanup_file(FakeWorker::SCHEDULE_COLLISION_PATH)
   end
 
-  describe "locking" do
+  describe "#perform" do
     context "synchronized workers" do
       before do
         FakeWorker.synchronize_jobs :one_at_a_time,
@@ -238,6 +238,39 @@ RSpec.describe Sqeduler::BaseWorker do
           end
         end
       end
+    end
+  end
+
+  describe ".disable" do
+    before do
+      FakeWorker.disable
+    end
+
+    it "should not run" do
+      FakeWorker.new.perform(0)
+      verify_callback_skipped(FakeWorker::JOB_RUN_PATH)
+    end
+
+    it "should be disabled?" do
+      expect(FakeWorker.disabled?).to be true
+      expect(FakeWorker.enabled?).to be false
+    end
+  end
+
+  describe ".enable" do
+    before do
+      FakeWorker.disable
+      FakeWorker.enable
+    end
+
+    it "should run" do
+      FakeWorker.new.perform(0)
+      verify_callback_occured(FakeWorker::JOB_RUN_PATH)
+    end
+
+    it "should be enabled?" do
+      expect(FakeWorker.disabled?).to be false
+      expect(FakeWorker.enabled?).to be true
     end
   end
 end

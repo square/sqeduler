@@ -11,6 +11,7 @@ Provides common infrastructure for using Sidekiq scheduling across multiple host
 * Provides a simple base class for Sidekiq jobs:
   * Simple callbacks for `before_start`, `on_success`, `on_failure`, `on_schedule_collision`.
   * `synchronize_jobs_mode` for if a job should run exclusively. Currently only supports `:one_at_a_time`.
+  * Class-level `enabled` and `disable` methods to enable and disable jobs. Enabled by default.
 
 ## Examples
 
@@ -90,6 +91,16 @@ class MyWorker < ::Sqeduler::BaseWorker
   end
 end
 ```
+
+Enabling and disabling:
+
+```ruby
+# disabling your job:
+MyWorker.disable
+# re-enabling your job:
+MyWorker.enable
+```
+
 
 ## License
 

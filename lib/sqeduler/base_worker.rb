@@ -4,6 +4,8 @@ module Sqeduler
   # - Synchronization of jobs across multiple hosts `Sqeduler::BaseWorker.synchronize_jobs`.
   # - Basic callbacks for job events that child classes can observe.
   class BaseWorker
+    SIDEKIQ_DISABLED_JOBS = "sidekiq.disabled-jobs"
+
     def self.synchronize_jobs(mode, opts = {})
       @synchronize_jobs_mode = mode
       @synchronize_jobs_timeout = opts[:timeout] || 5.seconds
@@ -12,28 +14,50 @@ module Sqeduler
 
     class << self
       attr_reader :synchronize_jobs_mode
-    end
-
-    class << self
       attr_reader :synchronize_jobs_timeout
-    end
-
-    class << self
       attr_reader :synchronize_jobs_expiration
-    end
 
-    def self.lock_name(*args)
-      if args.present?
-        "#{name}-#{args.join}"
-      else
-        name
+      def enable
+        Sidekiq.redis do |redis|
+          redis.hdel(SIDEKIQ_DISABLED_JOBS, name)
+          Service.logger.warn "#{name} has been enabled"
+        end
+      end
+
+      def disable
+        Sidekiq.redis do |redis|
+          redis.hset(SIDEKIQ_DISABLED_JOBS, name, Time.now)
+          Service.logger.warn "#{name} has been disabled"
+        end
+      end
+
+      def disabled?
+        Sidekiq.redis do |redis|
+          v = redis.hexists(SIDEKIQ_DISABLED_JOBS, name)
+          puts "DISABLED? #{v}"
+          v
+        end
+      end
+
+      def enabled?
+        !disabled?
+      end
+
+      def lock_name(*args)
+        if args.present?
+          "#{name}-#{args.join}"
+        else
+          name
+        end
       end
     end
 
     def perform(*args)
       before_start
       Service.logger.info "Starting #{self.class.name} #{start_time}"
-      if self.class.synchronize_jobs_mode == :one_at_a_time
+      if self.class.disabled?
+        Service.logger.warn "#{self.class.name} is currently disabled."
+      elsif self.class.synchronize_jobs_mode == :one_at_a_time
         if self.class.synchronize_jobs_expiration
           start = Time.now
           do_work_with_lock(*args)
