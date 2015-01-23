@@ -13,19 +13,15 @@ module Sqeduler
     def initialize(key, options = {})
       @key = key
       @expiration = options[:expiration]
+      fail ArgumentError, "Expiration must be provided!" unless @expiration
       @timeout = options[:timeout] || 5.seconds
       @locked = false
     end
 
     def lock
-      message = if @expiration
+      Service.logger.info(
         "Try to acquire lock with #{key}, expiration: #{@expiration} sec, timeout: #{timeout} sec"
-      else
-        "Try to acquire lock with #{key}, expiration: none, timeout: #{timeout} sec"
-      end
-
-      Service.logger.info message
-
+      )
       return true if locked?
       if poll_for_lock
         Service.logger.info "Acquired lock #{key} with value #{lock_value}"
