@@ -38,7 +38,7 @@ RSpec.describe Sqeduler::TriggerLock do
     it "should refresh the lock expiration time when it is the owner" do
       allow(trigger_lock_1).to receive(:expiration_milliseconds).and_return(1000)
       expect(trigger_lock_1.lock).to be true
-      sleep 1
+      sleep 1.1
       expect(trigger_lock_1.locked?).to be false
       expect(trigger_lock_1.refresh).to be true
     end
@@ -48,10 +48,10 @@ RSpec.describe Sqeduler::TriggerLock do
       threads << Thread.new do
         allow(trigger_lock_1).to receive(:expiration_milliseconds).and_return(1000)
         trigger_lock_1.lock
-        sleep 1.1
+        sleep 1
       end
       threads << Thread.new do
-        sleep 1
+        sleep 1.1
         trigger_lock_2.lock
       end
       threads.each(&:join)
