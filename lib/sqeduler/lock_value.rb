@@ -8,10 +8,7 @@ module Sqeduler
     private
 
     def hostname
-      local_hostname = Socket.gethostname
-      Socket.gethostbyname(local_hostname).first
-    rescue
-      local_hostname
+      Socket.gethostname
     end
 
     def process_id
