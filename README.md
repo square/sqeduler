@@ -41,8 +41,8 @@ config = {
 # We use a `ConnectionPool` for worker synchronization lock (Sqeduler::BaseWorker.synchronize_jobs).
 # `ConnectionPool` is a already a dependency for Sidekiq used to pool redis connections, it's important
 # to tune these settings with care.
-config[:locks_pool_timeout] = timeout
-config[:locks_pool_size] = size
+config[:locks_pool_timeout] = timeout # defaults to 5 seconds
+config[:locks_pool_size] = size # defaults to Sidekiq.options[:concurrency] + 1
 
 # Additional configuration for Sidekiq.
 # Pptional server config for sidekiq. Allows you to hook into `Sidekiq.configure_server`

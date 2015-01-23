@@ -19,9 +19,9 @@ module Sqeduler
 
     def sync_pool
       return @sync_pool if defined?(@sync_pool)
-      pool_size = fetch_or_raise(:sync_pool_size)
-      pool_timeout = fetch_or_raise(:sync_pool_timeout)
-      @sync_pool = ConnectionPool.new(
+      pool_size = opts[:sync_pool_size] || (::Sidekiq.options[:concurrency] + 1)
+      pool_timeout = opts[:sync_pool_timeout] || 5.seconds
+      @sync_pool = ::ConnectionPool.new(
                     :size => pool_size,
                     :timeout => pool_timeout
                   ) do

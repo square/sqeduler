@@ -29,6 +29,10 @@ RSpec.describe Sqeduler::Config do
       end
 
       it "creates a connection pool" do
+        expect(ConnectionPool).to receive(:new).with(
+          :size => options[:sync_pool_size],
+          :timeout => options[:sync_pool_timeout]
+        ).and_call_original
         expect(subject.sync_pool).to be_kind_of(ConnectionPool)
       end
 
@@ -51,8 +55,12 @@ RSpec.describe Sqeduler::Config do
           expect { subject }.to_not raise_error
         end
 
-        it "should raise when calling the sync_pool" do
-          expect { subject.sync_pool }.to raise_error(ArgumentError)
+        it "should fallback to 5 seconds" do
+          expect(ConnectionPool).to receive(:new).with(
+            :size => options[:sync_pool_size],
+            :timeout => 5.seconds
+          )
+          subject.sync_pool
         end
       end
 
@@ -65,8 +73,12 @@ RSpec.describe Sqeduler::Config do
           expect { subject }.to_not raise_error
         end
 
-        it "should raise when calling the sync_pool" do
-          expect { subject.sync_pool }.to raise_error(ArgumentError)
+        it "should fallback to Sidekiq concurrency + 1" do
+          expect(ConnectionPool).to receive(:new).with(
+            :size => Sidekiq.options[:concurrency] + 1,
+            :timeout => options[:sync_pool_timeout]
+          )
+          subject.sync_pool
         end
       end
     end
