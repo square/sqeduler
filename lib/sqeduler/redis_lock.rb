@@ -23,6 +23,7 @@ module Sqeduler
       else
         "Try to acquire lock with #{key}, expiration: none, timeout: #{timeout} sec"
       end
+
       Service.logger.info message
 
       return true if locked?

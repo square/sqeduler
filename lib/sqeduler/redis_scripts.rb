@@ -13,7 +13,6 @@ module Sqeduler
 
     def sha_and_evaluate(script_name, key, value)
       redis_pool.with do |redis|
-        # strip leading whitespace of 8 characters
         sha = load_sha(redis, script_name)
         # all scripts return 0 or 1
         redis.evalsha(sha, :keys => [key], :argv => [value]) == 1
@@ -24,13 +23,13 @@ module Sqeduler
       @redis_sha_cache ||= {}
       @redis_sha_cache[script_name] ||= begin
         script = if script_name == :refresh
-                   refresh_lock_script
-                 elsif script_name == :release
-                   release_lock_script
-                 else
-                   fail "No script for #{:script_name}"
-                 end
-
+          refresh_lock_script
+        elsif script_name == :release
+          release_lock_script
+        else
+          fail "No script for #{script_name}"
+        end
+        # strip leading whitespace of 8 characters
         redis.script(:load, script.gsub(/^ {8}/, ""))
       end
     end
