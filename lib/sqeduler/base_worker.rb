@@ -4,12 +4,16 @@ module Sqeduler
   # - Synchronization of jobs across multiple hosts `Sqeduler::BaseWorker.synchronize_jobs`.
   # - Basic callbacks for job events that child classes can observe.
   class BaseWorker
+    include TimeDuration
     SIDEKIQ_DISABLED_JOBS = "sidekiq.disabled-jobs"
 
     def self.synchronize_jobs(mode, opts = {})
       @synchronize_jobs_mode = mode
       @synchronize_jobs_timeout = opts[:timeout] || 5.seconds
       @synchronize_jobs_expiration = opts[:expiration]
+      unless @synchronize_jobs_expiration
+        fail ArgumentError, ":expiration is required!"
+      end
     end
 
     class << self
@@ -58,14 +62,7 @@ module Sqeduler
       if self.class.disabled?
         Service.logger.warn "#{self.class.name} is currently disabled."
       elsif self.class.synchronize_jobs_mode == :one_at_a_time
-        if self.class.synchronize_jobs_expiration
-          start = Time.now
-          do_work_with_lock(*args)
-          duration = Time.now - start
-          on_schedule_collision if duration > self.class.synchronize_jobs_expiration
-        else
-          do_work_with_lock(*args)
-        end
+        perform_synchronized
       else
         do_work(*args)
       end
@@ -96,6 +93,17 @@ module Sqeduler
 
     def notify_exception(e)
       Service.handle_exception(e)
+    end
+
+    def perform_synchronized
+      start = Time.now
+      do_work_with_lock(*args)
+      duration = Time.now - start
+      return unless duration > self.class.synchronize_jobs_expiration
+      Service.logger.warn(
+        "#{self.class.name} took #{time_duration(duration)} but has an expiration of #{@expiration} sec. Beware of race conditions!"
+      )
+      on_schedule_collision
     end
 
     def do_work_with_lock(*args)
@@ -135,21 +143,6 @@ module Sqeduler
       Service.logger.error e
       notify_exception(e)
       fail e
-    end
-
-    private
-
-    def time_duration(timespan)
-      rest, secs = timespan.divmod(60)  # self is the time difference t2 - t1
-      rest, mins = rest.divmod(60)
-      days, hours = rest.divmod(24)
-
-      result = []
-      result << "#{days} Days" if days > 0
-      result << "#{hours} Hours" if hours > 0
-      result << "#{mins} Minutes" if mins > 0
-      result << "#{secs.round(2)} Seconds" if secs > 0
-      result.join(" ")
     end
   end
 end

@@ -1,7 +1,10 @@
 inherit_from: .rubocop_todo.yml
 
 LineLength:
-  Max: 105
+  Max: 150
+
+ClassLength:
+  Max: 150
 
 Encoding:
   Enabled: true
