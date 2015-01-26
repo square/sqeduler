@@ -55,9 +55,15 @@ module Sqeduler
 
       # callback for when the job expiration is too short, less < time it took
       # perform the actual work
+      SCHEDULE_COLLISION_MARKER = "%s took %s but has an expiration of %p sec. Beware of race conditions!".freeze
       def on_schedule_collision(duration)
         Service.logger.warn(
-          "#{self.class.name} took #{time_duration(duration)} but has an expiration of #{self.class.synchronize_jobs_expiration} sec. Beware of race conditions!"
+          format(
+            SCHEDULE_COLLISION_MARKER,
+            self.class.name,
+            time_duration(duration),
+            self.class.synchronize_jobs_expiration
+          )
         )
         super if defined?(super)
       end

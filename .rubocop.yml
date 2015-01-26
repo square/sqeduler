@@ -1,12 +1,19 @@
-LineLength:
-  # just a really annoying check, especially when logging
-  Enabled: false
+AllCops:
+  RunRailsCops: true
+  DisplayCopNames: true
 
-ClassLength:
+Lint/EndAlignment:
+  AlignWith: variable
+
+Metrics/ClassLength:
   Max: 150
 
-Encoding:
-  Enabled: true
+# just a really annoying check, especially when logging
+Metrics/LineLength:
+  Max: 120
+
+Metrics/MethodLength:
+  Max: 20
 
 Style/HashSyntax:
   EnforcedStyle: hash_rockets
@@ -17,10 +24,3 @@ Style/StringLiterals:
 Style/Documentation:
   Exclude:
     - 'lib/sqeduler/version.rb'
-
-EndAlignment:
-  AlignWith: variable
-
-Metrics/MethodLength:
-  Max: 20
-

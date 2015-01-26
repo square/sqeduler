@@ -8,9 +8,8 @@ module Sqeduler
         super
         on_success
       rescue StandardError => e
-        puts e
         on_failure(e)
-        raise e
+        raise
       end
 
       private
