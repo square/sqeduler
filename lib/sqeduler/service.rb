@@ -77,7 +77,7 @@ module Sqeduler
       # pools.
       def redis_pool
         @redis_pool ||= begin
-          redis = config.redis_hash.merge(:namespace => "sqeduler")
+          redis = { :namespace => "sqeduler" }.merge(config.redis_hash)
           ::Sidekiq::RedisConnection.create(redis).tap do |redis_pool|
             verify_redis_pool(redis_pool)
           end
