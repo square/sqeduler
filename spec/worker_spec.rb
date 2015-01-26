@@ -15,17 +15,12 @@ def maybe_cleanup_file(file_path)
   File.delete(file_path) if File.exist?(file_path)
 end
 
-RSpec.describe Sqeduler::BaseWorker do
+RSpec.describe Sqeduler::Worker do
   before do
-    config = double
-    allow(Sqeduler::Service).to receive(:config).and_return(config)
-    allow(config).to receive(:sync_pool).and_return(
-      ConnectionPool.new(:timeout => 1, :size => 2) { Redis.new(REDIS_CONFIG) }
+    Sqeduler::Service.config = Sqeduler::Config.new(
+      :redis_hash => REDIS_CONFIG,
+      :logger     => Logger.new(STDOUT).tap { |l| l.level = Logger::DEBUG }
     )
-    allow(config).to receive(:logger).and_return(
-      Logger.new(STDOUT).tap { |l| l.level = Logger::DEBUG }
-    )
-    allow(Sqeduler::Service).to receive(:handle_exception)
   end
 
   after do
@@ -37,12 +32,12 @@ RSpec.describe Sqeduler::BaseWorker do
     maybe_cleanup_file(FakeWorker::SCHEDULE_COLLISION_PATH)
   end
 
-  describe "locking" do
+  describe "#perform" do
     context "synchronized workers" do
       before do
-        FakeWorker.synchronize_jobs :one_at_a_time,
-                                    :expiration => expiration.seconds,
-                                    :timeout => timeout.seconds
+        FakeWorker.synchronize :one_at_a_time,
+                               :expiration => expiration.seconds,
+                               :timeout => timeout.seconds
       end
 
       let(:expiration) { work_time * 4 }
@@ -74,9 +69,13 @@ RSpec.describe Sqeduler::BaseWorker do
             verify_callback_occured(FakeWorker::JOB_RUN_PATH)
           end
 
-          it "no worker should fail" do
+          it "one worker should succeed" do
             subject
             verify_callback_occured(FakeWorker::JOB_SUCCESS_PATH, 2)
+          end
+
+          it "no worker should fail" do
+            subject
             verify_callback_skipped(FakeWorker::JOB_FAILURE_PATH)
           end
 
@@ -92,7 +91,7 @@ RSpec.describe Sqeduler::BaseWorker do
         end
 
         context "timeout is greater than work_time" do
-          let(:timeout) { work_time * 2 }
+          let(:timeout) { work_time * 4 }
 
           it "no worker should be blocked" do
             subject
@@ -152,10 +151,10 @@ RSpec.describe Sqeduler::BaseWorker do
       end
 
       context "non-overlapping schedule" do
-        let(:wait_time) { work_time }
+        let(:wait_time) { work_time * 2 }
 
         context "timeout is less than work_time (too short)" do
-          let(:timeout) { work_time / 2 }
+          let(:timeout) { work_time }
 
           it "no workers should be blocked" do
             subject
@@ -238,6 +237,39 @@ RSpec.describe Sqeduler::BaseWorker do
           end
         end
       end
+    end
+  end
+
+  describe ".disable" do
+    before do
+      FakeWorker.disable
+    end
+
+    it "should not run" do
+      FakeWorker.new.perform(0)
+      verify_callback_skipped(FakeWorker::JOB_RUN_PATH)
+    end
+
+    it "should be disabled?" do
+      expect(FakeWorker.disabled?).to be true
+      expect(FakeWorker.enabled?).to be false
+    end
+  end
+
+  describe ".enable" do
+    before do
+      FakeWorker.disable
+      FakeWorker.enable
+    end
+
+    it "should run" do
+      FakeWorker.new.perform(0)
+      verify_callback_occured(FakeWorker::JOB_RUN_PATH)
+    end
+
+    it "should be enabled?" do
+      expect(FakeWorker.disabled?).to be false
+      expect(FakeWorker.enabled?).to be true
     end
   end
 end
