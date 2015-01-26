@@ -2,8 +2,13 @@
 require "spec_helper"
 
 RSpec.describe Sqeduler::Service do
+  let(:logger) do
+    Logger.new(STDOUT).tap { |l| l.level = Logger::DEBUG }
+  end
+
   describe ".start" do
     subject { described_class.start }
+
     context "no config provided" do
       it "should raise" do
         expect { subject }.to raise_error
@@ -12,13 +17,10 @@ RSpec.describe Sqeduler::Service do
 
     context "config provided" do
       let(:schedule_filepath) { "./spec/fixtures/schedule.yaml" }
-      let(:logger) do
-        Logger.new(STDOUT).tap { |l| l.level = Logger::DEBUG }
-      end
 
       before do
-        Sqeduler::Service.config = Sqeduler::Config.new(
-          :redis_config => REDIS_CONFIG,
+        described_class.config = Sqeduler::Config.new(
+          :redis_hash => REDIS_CONFIG,
           :logger => logger,
           :schedule_path => schedule_filepath,
           :exception_notifier => proc { |e| puts e }
@@ -35,13 +37,24 @@ RSpec.describe Sqeduler::Service do
         subject
       end
 
-      it "starts the scheduler" do
-        expect(Sidekiq).to receive(:"schedule=").with(YAML.load_file(schedule_filepath))
-        subject
-        expect(Sidekiq::Scheduler.rufus_scheduler_options).to have_key(:trigger_lock)
-        expect(Sidekiq::Scheduler.rufus_scheduler_options[:trigger_lock]).to be_kind_of(
-          Sqeduler::TriggerLock
-        )
+      context "a schedule_path is provided" do
+        it "starts the scheduler" do
+          expect(Sidekiq).to receive(:"schedule=").with(YAML.load_file(schedule_filepath))
+          subject
+          expect(Sidekiq::Scheduler.rufus_scheduler_options).to have_key(:trigger_lock)
+          expect(Sidekiq::Scheduler.rufus_scheduler_options[:trigger_lock]).to be_kind_of(
+            Sqeduler::TriggerLock
+          )
+        end
+      end
+
+      context "a schedule_path is not provided" do
+        let(:schedule_filepath) { nil }
+
+        it "does not start the scheduler" do
+          expect(Sidekiq).to_not receive(:"schedule=")
+          subject
+        end
       end
 
       context "redis version is too low" do
@@ -53,6 +66,69 @@ RSpec.describe Sqeduler::Service do
 
         it "should raise" do
           expect { subject }.to raise_error
+        end
+      end
+    end
+  end
+
+  describe ".redis_pool" do
+    subject { described_class.redis_pool }
+
+    before do
+      described_class.config = Sqeduler::Config.new.tap do |config|
+        config.redis_hash = REDIS_CONFIG
+        config.logger = logger
+      end
+    end
+
+    it "creates a connection pool" do
+      expect(subject).to be_kind_of(ConnectionPool)
+    end
+
+    it "is memoized" do
+      pool_1 = described_class.redis_pool
+      pool_2 = described_class.redis_pool
+      expect(pool_1.object_id).to eq(pool_2.object_id)
+    end
+
+    it "is not Sidekiq.redis" do
+      described_class.start
+      expect(Sidekiq.redis_pool.object_id).to_not eq(subject.object_id)
+    end
+  end
+
+  describe ".logger" do
+    subject { described_class.logger }
+
+    before do
+      described_class.config = Sqeduler::Config.new.tap do |config|
+        config.logger = logger
+      end
+    end
+
+    context "provided in config" do
+      it "return the config value" do
+        expect(subject).to eq(logger)
+      end
+    end
+
+    context "no config provided" do
+      let(:logger) { nil }
+
+      it "should raise ArgumentError" do
+        expect { subject }.to raise_error(ArgumentError)
+      end
+
+      context "in a Rails app" do
+        let(:logger) { double }
+        before do
+          rails = double
+          stub_const("Rails", rails)
+          allow(rails).to receive(:logger).and_return(logger)
+        end
+
+        it "should use the Rails logger" do
+          expect(subject).to eq(logger)
         end
       end
     end

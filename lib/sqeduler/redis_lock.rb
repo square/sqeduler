@@ -15,7 +15,6 @@ module Sqeduler
       @expiration = options[:expiration]
       fail ArgumentError, "Expiration must be provided!" unless @expiration
       @timeout = options[:timeout] || 5.seconds
-      @locked = false
     end
 
     def lock
@@ -107,7 +106,7 @@ module Sqeduler
     end
 
     def redis_pool
-      Service.config.sync_pool
+      Service.redis_pool
     end
   end
 end

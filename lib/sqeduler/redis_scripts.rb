@@ -1,5 +1,6 @@
 # encoding: utf-8
 module Sqeduler
+  # Extracts atomic Lua scripts for Redis.
   module RedisScripts
     def release_lock
       sha_and_evaluate(:release, key, lock_value)

@@ -6,13 +6,9 @@ RSpec.describe Sqeduler::TriggerLock do
     subject { described_class.new.lock }
 
     before do
-      config = double
-      allow(Sqeduler::Service).to receive(:config).and_return(config)
-      allow(config).to receive(:sync_pool).and_return(
-        ConnectionPool.new(:timeout => 1, :size => 2) { Redis.new(REDIS_CONFIG) }
-      )
-      allow(config).to receive(:logger).and_return(
-        Logger.new(STDOUT).tap { |l| l.level = Logger::DEBUG }
+      Sqeduler::Service.config = Sqeduler::Config.new(
+        :redis_hash => REDIS_CONFIG,
+        :logger     => Logger.new(STDOUT).tap { |l| l.level = Logger::DEBUG }
       )
     end
 
