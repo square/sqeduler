@@ -29,6 +29,7 @@ gem 'sidekiq-scheduler', :github => 'ecin/sidekiq-scheduler', :branch => 'ecin/r
 To use this gem for initializing `Sidekiq` and `Sidekiq::Scheduler`:
 
 In an initializer:
+
 ```ruby
 require 'sqeduler'
 config = Sqeduler::Config.new(
