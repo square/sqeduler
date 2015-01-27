@@ -1,4 +1,6 @@
 # encoding: utf-8
+require "sidekiq"
+require "sidekiq-scheduler"
 module Sqeduler
   # Singleton class for configuring this Gem.
   class Service
@@ -52,7 +54,8 @@ module Sqeduler
       end
 
       def setup_sidekiq_redis(config)
-        config.redis = Service.config.redis_hash if Service.config.redis_hash.present?
+        return if Service.config.redis_hash.nil? || Service.config.redis_hash.empty?
+        config.redis = Service.config.redis_hash
       end
 
       def start_scheduler
@@ -68,7 +71,7 @@ module Sqeduler
       end
 
       def scheduling?
-        config.schedule_path.present?
+        !(config.schedule_path.nil? || config.schedule_path.empty?)
       end
 
       # A singleton redis ConnectionPool for Sidekiq::Scheduler,

@@ -1,4 +1,5 @@
 # encoding: utf-8
+require "benchmark"
 module Sqeduler
   module Worker
     # Basic callbacks for worker events.

@@ -14,7 +14,7 @@ module Sqeduler
       @key = key
       @expiration = options[:expiration]
       fail ArgumentError, "Expiration must be provided!" unless @expiration
-      @timeout = options[:timeout] || 5.seconds
+      @timeout = options[:timeout] || 5
     end
 
     def lock

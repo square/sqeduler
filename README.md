@@ -88,8 +88,8 @@ class MyWorker
   # optionally synchronize jobs across hosts
   prepend Sqeduler::Worker::Synchronization
   # then define how the job should be synchronized
-  # :timeout, how long should we poll for a lock, default is 5.seconds
-  # :expiration, how long should the lock be held for, must be provided in seconds
+  # :timeout in seconds, how long should we poll for a lock, default is 5
+  # :expiration in seconds, how long should the lock be held for
   synchronize :one_at_a_time, :expiration => 1.hour, :timeout => 1.second
 
   # cross-host methods for enabling and disabling workers

@@ -6,7 +6,7 @@ module Sqeduler
     SCHEDULER_LOCK_KEY = "sidekiq_scheduler_lock".freeze
 
     def initialize
-      super(SCHEDULER_LOCK_KEY, :expiration => 60.seconds, :timeout => 0)
+      super(SCHEDULER_LOCK_KEY, :expiration => 60, :timeout => 0)
     end
 
     def lock

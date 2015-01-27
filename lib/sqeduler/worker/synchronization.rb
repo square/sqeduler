@@ -1,4 +1,5 @@
 # encoding: utf-8
+require "benchmark"
 module Sqeduler
   module Worker
     # Module that provides common synchronization infrastructure
@@ -19,7 +20,7 @@ module Sqeduler
 
         def synchronize(mode, opts = {})
           @synchronize_jobs_mode = mode
-          @synchronize_jobs_timeout = opts[:timeout] || 5.seconds
+          @synchronize_jobs_timeout = opts[:timeout] || 5
           @synchronize_jobs_expiration = opts[:expiration]
           return if @synchronize_jobs_expiration
           fail ArgumentError, ":expiration is required!"
