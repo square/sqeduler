@@ -2,12 +2,12 @@
 
 ## Description
 
-Provides common infrastructure for Sidekiq and highly available scheduling across multiple hosts.
+Provides loosely-coupled helpers for Sidekiq workers. Provides highly available scheduling across multiple hosts.
 
 ## Features
 
 * Centralizes configuration for Sidekiq and Sidekiq::Scheduler
-* Provides helpul modules for Sidekiq jobs.
+* Provides composable modules for Sidekiq jobs.
   * Simple callbacks for `before_start`, `on_success`, `on_failure`
   * Synchronization across multiple hosts:
     * Provides global level scheduler locks through a thread-safe redis lock
@@ -72,13 +72,18 @@ The modules:
   * `enabled` and `disable` class methods to enable and disable workers.
   * Workers are enabled by default.
 
-Helpers are à la carte. Make sure to [prepend](http://ruby-doc.org/core-2.0.0/Module.html#method-i-prepend) them, not `include`.
+You can either include everything`include Sqeduler::Worker::Everything`) or prepend à la carte, but make sure to
+use [prepend](http://ruby-doc.org/core-2.0.0/Module.html#method-i-prepend), not `include`.
 
 Sample code and callback docs below.
 
 ```ruby
 class MyWorker
   include Sidekiq::Worker
+
+  # include everything
+  include Sqeduler::Worker::Everything
+  # or cherry pick the modules that you want
 
   # optionally synchronize jobs across hosts
   prepend Sqeduler::Worker::Synchronization
@@ -108,7 +113,7 @@ class MyWorker
     # before perform is called
   end
 
-  def on_success
+  def on_success(total_time)
     # It worked! Save this status or enqueue other jobs.
   end
 
@@ -129,7 +134,7 @@ class MyWorker
     # the job to get scheduled again even though you expected the job to run exclusively.
   end
 
-  def on_lock_timeout
+  def on_lock_timeout(key)
     # Called when your worker cannot obtain the lock.
   end
 end
