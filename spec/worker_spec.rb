@@ -36,8 +36,8 @@ RSpec.describe Sqeduler::Worker do
     context "synchronized workers" do
       before do
         FakeWorker.synchronize :one_at_a_time,
-                               :expiration => expiration.seconds,
-                               :timeout => timeout.seconds
+                               :expiration => expiration,
+                               :timeout => timeout
       end
 
       let(:expiration) { work_time * 4 }

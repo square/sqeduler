@@ -1,11 +1,4 @@
 # encoding: utf-8
-require "redis"
-require "sidekiq"
-require "sidekiq-scheduler"
-require "active_support"
-require "active_support/core_ext/time"
-require "active_support/core_ext/numeric"
-
 require "sqeduler/version"
 require "sqeduler/config"
 require "sqeduler/redis_scripts"
@@ -16,3 +9,4 @@ require "sqeduler/service"
 require "sqeduler/worker/callbacks"
 require "sqeduler/worker/synchronization"
 require "sqeduler/worker/kill_switch"
+require "sqeduler/worker/everything"

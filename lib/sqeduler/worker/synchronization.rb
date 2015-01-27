@@ -1,4 +1,5 @@
 # encoding: utf-8
+require "benchmark"
 module Sqeduler
   module Worker
     # Module that provides common synchronization infrastructure
@@ -11,8 +12,6 @@ module Sqeduler
         base.extend(ClassMethods)
       end
 
-      attr_accessor :sync_lock_key
-
       # rubocop:disable Style/Documentation
       module ClassMethods
         attr_reader :synchronize_jobs_mode
@@ -21,7 +20,7 @@ module Sqeduler
 
         def synchronize(mode, opts = {})
           @synchronize_jobs_mode = mode
-          @synchronize_jobs_timeout = opts[:timeout] || 5.seconds
+          @synchronize_jobs_timeout = opts[:timeout] || 5
           @synchronize_jobs_expiration = opts[:expiration]
           return if @synchronize_jobs_expiration
           fail ArgumentError, ":expiration is required!"
@@ -30,14 +29,12 @@ module Sqeduler
       # rubocop:enable Style/Documentation
 
       def perform(*args)
-        self.sync_lock_key = if args.present?
-          "#{self.class.name}-#{args.join}"
-        else
-          self.class.name
-        end
-
         if self.class.synchronize_jobs_mode == :one_at_a_time
-          perform_synchronized { super(*args) }
+          perform_locked(sync_lock_key(*args)) do
+            perform_timed do
+              super
+            end
+          end
         else
           super
         end
@@ -45,10 +42,18 @@ module Sqeduler
 
       private
 
+      def sync_lock_key(*args)
+        if args.empty?
+          self.class.name
+        else
+          "#{self.class.name}-#{args.join}"
+        end
+      end
+
       # callback for when a lock cannot be obtained
-      def on_lock_timeout
+      def on_lock_timeout(key)
         Service.logger.warn(
-          "#{self.class.name} unable to acquire lock '#{sync_lock_key}'. Aborting."
+          "#{self.class.name} unable to acquire lock '#{key}'. Aborting."
         )
         super if defined?(super)
       end
@@ -68,45 +73,20 @@ module Sqeduler
         super if defined?(super)
       end
 
-      def perform_synchronized(&work)
-        start = Time.now
-        perform_locked(&work)
-        duration = Time.now - start
-        return unless duration > self.class.synchronize_jobs_expiration
-        on_schedule_collision(duration)
+      def perform_timed(&block)
+        duration = Benchmark.realtime(&block)
+        on_schedule_collision(duration) if duration > self.class.synchronize_jobs_expiration
       end
 
-      def perform_locked(&work)
+      def perform_locked(sync_lock_key, &work)
         RedisLock.with_lock(
           sync_lock_key,
           :expiration => self.class.synchronize_jobs_expiration,
           :timeout => self.class.synchronize_jobs_timeout,
-          :redis => @redis
-        ) do
-          work.call
-        end
+          &work
+        )
       rescue RedisLock::LockTimeoutError
-        on_lock_timeout
-      end
-
-      def start_time
-        @start_time ||= Time.now
-      end
-
-      def end_time
-        @end_time ||= Time.now
-      end
-
-      def total_time
-        time_duration(end_time - start_time)
-      end
-
-      def time_elapsed
-        time_duration(Time.now - start_time)
-      end
-
-      def notify_and_raise(e)
-        on_failure(e)
+        on_lock_timeout(sync_lock_key)
       end
 
       # rubocop:disable Metrics/AbcSize
