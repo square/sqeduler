@@ -16,7 +16,7 @@ RSpec.describe Sqeduler::Service do
     end
 
     context "config provided" do
-      let(:schedule_filepath) { "./spec/fixtures/schedule.yaml" }
+      let(:schedule_filepath) { Pathname.new("./spec/fixtures/schedule.yaml") }
 
       before do
         described_class.config = Sqeduler::Config.new(
@@ -45,6 +45,19 @@ RSpec.describe Sqeduler::Service do
           expect(Sidekiq::Scheduler.rufus_scheduler_options[:trigger_lock]).to be_kind_of(
             Sqeduler::TriggerLock
           )
+        end
+
+        context 'a schedule_path is a string' do
+          let(:schedule_filepath) { "./spec/fixtures/schedule.yaml" }
+
+          it "starts the scheduler" do
+            expect(Sidekiq).to receive(:"schedule=").with(YAML.load_file(schedule_filepath))
+            subject
+            expect(Sidekiq::Scheduler.rufus_scheduler_options).to have_key(:trigger_lock)
+            expect(Sidekiq::Scheduler.rufus_scheduler_options[:trigger_lock]).to be_kind_of(
+              Sqeduler::TriggerLock
+            )
+          end
         end
       end
 

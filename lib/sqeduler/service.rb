@@ -71,7 +71,7 @@ module Sqeduler
       end
 
       def scheduling?
-        !(config.schedule_path.nil? || config.schedule_path.empty?)
+        !config.schedule_path.to_s.empty?
       end
 
       # A singleton redis ConnectionPool for Sidekiq::Scheduler,
