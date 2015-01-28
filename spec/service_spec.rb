@@ -47,7 +47,7 @@ RSpec.describe Sqeduler::Service do
           )
         end
 
-        context 'a schedule_path is a string' do
+        context "a schedule_path is a string" do
           let(:schedule_filepath) { "./spec/fixtures/schedule.yaml" }
 
           it "starts the scheduler" do
