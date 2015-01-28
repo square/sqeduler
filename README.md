@@ -124,13 +124,13 @@ class MyWorker
 
   # callbacks for Sqeduler::Worker::Synchronization
 
-  # NOTE: Even if on_scuedule_conflict or on_lock_timeout occur your job will still
+  # NOTE: Even if `on_schedule_collision` or `on_lock_timeout` occur your job will still
   # receive on_success if you prepend Sqeduler::Worker::Callbacks. These events do not
   # equate to failures.
 
-  def on_scuedule_conflict(duration)
+  def on_schedule_collision(duration)
     # Called when your worker uses synchronization and :expiration is too low, i.e. it took longer
-    # to carry out `do_work` then your lock's expiration period. In this situation, it's possible for
+    # to carry out `perform` then your lock's expiration period. In this situation, it's possible for
     # the job to get scheduled again even though you expected the job to run exclusively.
   end
 
