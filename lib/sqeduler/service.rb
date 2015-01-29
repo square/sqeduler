@@ -39,7 +39,8 @@ module Sqeduler
               Sidekiq::Scheduler.rufus_scheduler.stop
             end
           end
-          Service.config.on_server_start(config) if Service.config.on_server_start
+
+          Service.config.on_server_start.call(config) if Service.config.on_server_start
         end
       end
 
@@ -48,7 +49,7 @@ module Sqeduler
         ::Sidekiq.configure_client do |config|
           setup_sidekiq_redis(config)
           if Service.config.on_client_start
-            Service.config.on_client_start(config)
+            Service.config.on_client_start.call(config)
           end
         end
       end

@@ -17,13 +17,18 @@ RSpec.describe Sqeduler::Service do
 
     context "config provided" do
       let(:schedule_filepath) { Pathname.new("./spec/fixtures/schedule.yaml") }
-
+      let(:server_receiver) { double }
+      let(:client_receiver) { double }
       before do
+        allow(server_receiver).to receive(:call)
+        allow(client_receiver).to receive(:call)
+
         described_class.config = Sqeduler::Config.new(
           :redis_hash => REDIS_CONFIG,
           :logger => logger,
           :schedule_path => schedule_filepath,
-          :exception_notifier => proc { |e| puts e }
+          :on_server_start => proc { |config| server_receiver.call(config) },
+          :on_client_start => proc { |config| client_receiver.call(config) }
         )
       end
 
@@ -34,6 +39,17 @@ RSpec.describe Sqeduler::Service do
 
       it "starts the client" do
         expect(Sidekiq).to receive(:configure_client)
+        subject
+      end
+
+      it "calls the appropriate on_server_start callbacks" do
+        allow(Sidekiq).to receive(:server?).and_return(true)
+        expect(server_receiver).to receive(:call)
+        subject
+      end
+
+      it "calls the appropriate on_client_start callbacks" do
+        expect(client_receiver).to receive(:call)
         subject
       end
 
