@@ -7,10 +7,10 @@ class FakeWorker
   JOB_FAILURE_PATH =        "/tmp/job_failure"
   JOB_LOCK_FAILURE_PATH =   "/tmp/lock_failure"
   SCHEDULE_COLLISION_PATH = "/tmp/schedule_collision"
-
+  include Sidekiq::Worker
   include Sqeduler::Worker::Everything
 
-  def perform(sleep_time)
+  def perform(sleep_time = 0.1)
     long_process(sleep_time)
   end
 
