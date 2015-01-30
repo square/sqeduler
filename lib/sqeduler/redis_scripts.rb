@@ -38,15 +38,9 @@ module Sqeduler
     def refresh_lock_script
       <<-EOF
         if redis.call('GET', KEYS[1]) == false then
-          if #{expiration_milliseconds} > 0 then
-            return redis.call('SET', KEYS[1], ARGV[1], 'NX', 'PX', #{expiration_milliseconds}) and 1 or 0
-          else
-            return redis.call('SET', KEYS[1], ARGV[1], 'NX') and 1 or 0
-          end
+          return redis.call('SET', KEYS[1], ARGV[1], 'NX', 'PX', #{expiration_milliseconds}) and 1 or 0
         elseif redis.call('GET', KEYS[1]) == ARGV[1] then
-          if #{expiration_milliseconds} > 0 then
-            redis.call('PEXPIRE', KEYS[1], #{expiration_milliseconds})
-          end
+          redis.call('PEXPIRE', KEYS[1], #{expiration_milliseconds})
           if redis.call('GET', KEYS[1]) == ARGV[1] then
             return 1
           end
