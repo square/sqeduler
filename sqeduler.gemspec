@@ -27,7 +27,6 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "rake", ">= 10.0"
   gem.add_development_dependency "rspec", ">= 3.0"
   gem.add_development_dependency "rubocop", ">= 0.24"
-  gem.add_development_dependency "sq-gem_tasks", ">= 1.0"
   gem.add_development_dependency "timecop"
   gem.add_development_dependency "yard", ">= 0.8"
 end
