@@ -1,2 +1,2 @@
 FakeWorker:
-  cron: "*/5 * * * *"
+  every: 5s

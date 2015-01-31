@@ -33,10 +33,10 @@ module Sqeduler
 
     def unlock
       if release_lock
-        Service.logger.info "Released lock #{key}."
+        Service.logger.info "Released lock #{key} with value #{lock_value}"
         true
       else
-        Service.logger.info "Cannot release lock #{key}."
+        Service.logger.info "Cannot release lock #{key} with value #{lock_value}"
         false
       end
     end
