@@ -12,14 +12,13 @@ module Sqeduler
 
       def start
         fail "No config provided" unless config
-        start_sidekiq_server
-        start_sidekiq_client
-        verify_redis_pool(Sidekiq.redis_pool)
-        start_scheduler
+        config_sidekiq_server
+        config_sidekiq_client
+        config_scheduler
       end
 
       def verify_redis_pool(redis_pool)
-        @verified if defined?(@verified)
+        return @verified if defined?(@verified)
         redis_pool.with do |redis|
           version = redis.info["redis_version"]
           unless Gem::Version.new(version) >= Gem::Version.new(MINIMUM_REDIS_VERSION)
@@ -29,7 +28,7 @@ module Sqeduler
         end
       end
 
-      def start_sidekiq_server
+      def config_sidekiq_server
         logger.info "Initializing Sidekiq server"
         ::Sidekiq.configure_server do |config|
           setup_sidekiq_redis(config)
@@ -44,7 +43,7 @@ module Sqeduler
         end
       end
 
-      def start_sidekiq_client
+      def config_sidekiq_client
         logger.info "Initializing Sidekiq client"
         ::Sidekiq.configure_client do |config|
           setup_sidekiq_redis(config)
@@ -59,7 +58,7 @@ module Sqeduler
         config.redis = Service.config.redis_hash
       end
 
-      def start_scheduler
+      def config_scheduler
         if scheduling?
           logger.info "Initializing Sidekiq::Scheduler with schedule #{config.schedule_path}"
           ::Sidekiq::Scheduler.rufus_scheduler_options = {
