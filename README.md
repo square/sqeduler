@@ -1,5 +1,7 @@
 # sqeduler
 
+[![Build Status](https://travis-ci.org/square/sqeduler.svg?branch=master)](https://travis-ci.org/square/sqeduler)
+
 ## Description
 
 Provides loosely-coupled helpers for Sidekiq workers. Provides highly available scheduling across multiple hosts.
