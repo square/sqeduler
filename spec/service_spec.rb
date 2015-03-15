@@ -85,6 +85,18 @@ RSpec.describe Sqeduler::Service do
           subject
         end
       end
+
+      context "redis version is too low" do
+        before do
+          allow_any_instance_of(Redis).to receive(:info).and_return(
+            "redis_version" => "2.6.11"
+          )
+        end
+
+        it "should raise" do
+          expect { subject }.to raise_error
+        end
+      end
     end
   end
 
@@ -111,25 +123,6 @@ RSpec.describe Sqeduler::Service do
     it "is not Sidekiq.redis" do
       described_class.start
       expect(Sidekiq.redis_pool.object_id).to_not eq(subject.object_id)
-    end
-
-    context "redis version is too low" do
-      before do
-        allow_any_instance_of(Redis).to receive(:info).and_return(
-          "redis_version" => "2.6.11"
-        )
-        if described_class.instance_variable_defined?(:@redis_pool)
-          described_class.remove_instance_variable(:@redis_pool)
-        end
-
-        if described_class.instance_variable_defined?(:@verified)
-          described_class.remove_instance_variable(:@verified)
-        end
-      end
-
-      it "should raise" do
-        expect { described_class.redis_pool }.to raise_error
-      end
     end
   end
 
