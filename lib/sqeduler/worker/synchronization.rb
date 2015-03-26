@@ -9,20 +9,20 @@ module Sqeduler
         if base.ancestors.include?(Sqeduler::Worker::Callbacks)
           fail "Sqeduler::Worker::Callbacks must be the last module that you prepend."
         end
+
         base.extend(ClassMethods)
+        base.class_attribute :synchronize_jobs_mode
+        base.class_attribute :synchronize_jobs_expiration
+        base.class_attribute :synchronize_jobs_timeout
       end
 
       # rubocop:disable Style/Documentation
       module ClassMethods
-        attr_reader :synchronize_jobs_mode
-        attr_reader :synchronize_jobs_timeout
-        attr_reader :synchronize_jobs_expiration
-
         def synchronize(mode, opts = {})
-          @synchronize_jobs_mode = mode
-          @synchronize_jobs_timeout = opts[:timeout] || 5
-          @synchronize_jobs_expiration = opts[:expiration]
-          return if @synchronize_jobs_expiration
+          self.synchronize_jobs_mode = mode
+          self.synchronize_jobs_timeout = opts[:timeout] || 5
+          self.synchronize_jobs_expiration = opts[:expiration]
+          return if synchronize_jobs_expiration
           fail ArgumentError, ":expiration is required!"
         end
       end
