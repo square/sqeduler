@@ -21,6 +21,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency "sidekiq"
   gem.add_dependency "sidekiq-scheduler"
+  gem.add_dependency "activesupport"
 
   gem.add_development_dependency "bundler", ">= 1.2"
   gem.add_development_dependency "pry"

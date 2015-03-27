@@ -1,5 +1,7 @@
 # encoding: utf-8
 require "benchmark"
+require "active_support/core_ext/class/attribute"
+
 module Sqeduler
   module Worker
     # Module that provides common synchronization infrastructure
