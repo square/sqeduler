@@ -19,15 +19,15 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(/^(test|spec|features)\//)
   gem.require_paths = ["lib"]
 
-  gem.add_dependency "sidekiq"
-  gem.add_dependency "sidekiq-scheduler"
-  gem.add_dependency "activesupport"
+  gem.add_runtime_dependency "sidekiq"
+  gem.add_runtime_dependency "sidekiq-scheduler"
+  gem.add_runtime_dependency "activesupport"
 
-  gem.add_development_dependency "bundler", ">= 1.2"
-  gem.add_development_dependency "pry"
-  gem.add_development_dependency "rake", ">= 10.0"
-  gem.add_development_dependency "rspec", ">= 3.0"
-  gem.add_development_dependency "rubocop", ">= 0.24"
-  gem.add_development_dependency "timecop"
-  gem.add_development_dependency "yard", ">= 0.8"
+  gem.add_development_dependency "bundler", "~> 1.7"
+  gem.add_development_dependency "pry", "~> 0"
+  gem.add_development_dependency "rake", "~> 10"
+  gem.add_development_dependency "rspec", "~> 3"
+  gem.add_development_dependency "rubocop", "~> 0.24"
+  gem.add_development_dependency "timecop", "~> 0"
+  gem.add_development_dependency "yard", "~> 0"
 end
