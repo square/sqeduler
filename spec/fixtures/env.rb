@@ -3,7 +3,8 @@ require_relative "fake_worker"
 
 REDIS_CONFIG = {
   :host => "localhost",
-  :db => 1
+  :db => 1,
+  :namespace => "sqeduler-tests"
 }
 Sidekiq.logger = Logger.new(STDOUT).tap { |l| l.level = Logger::DEBUG }
 
