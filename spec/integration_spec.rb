@@ -20,8 +20,8 @@ RSpec.describe "Sidekiq integration" do
     pid = Process.spawn "bundle exec sidekiq -r #{path}"
     puts "Spawned process #{pid}"
     timeout = 30
-    start = Time.new
-    while (Time.new - start) < timeout
+    start = Time.now
+    while (Time.now - start) < timeout
       break if File.exist?(FakeWorker::JOB_RUN_PATH)
       sleep 0.5
     end

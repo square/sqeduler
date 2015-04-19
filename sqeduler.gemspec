@@ -15,8 +15,8 @@ Gem::Specification.new do |gem|
   gem.homepage      = "https://rubygems.org/gems/sqeduler"
 
   gem.files         = `git ls-files`.split($RS)
-  gem.executables   = gem.files.grep(/^bin\//).map { |f| File.basename(f) }
-  gem.test_files    = gem.files.grep(/^(test|spec|features)\//)
+  gem.executables   = gem.files.grep(%r{^bin/}).map { |f| File.basename(f) }
+  gem.test_files    = gem.files.grep(%r{(test|spec|features)/})
   gem.require_paths = ["lib"]
 
   gem.add_runtime_dependency "sidekiq"

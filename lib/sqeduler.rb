@@ -1,4 +1,5 @@
 # encoding: utf-8
+require "active_support"
 require "sqeduler/version"
 require "sqeduler/config"
 require "sqeduler/redis_scripts"
