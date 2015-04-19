@@ -1,6 +1,5 @@
 AllCops:
   RunRailsCops: true
-  DisplayCopNames: true
 
 Lint/EndAlignment:
   AlignWith: variable
