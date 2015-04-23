@@ -1,11 +1,11 @@
 require "spec_helper"
 require "./spec/fixtures/fake_worker"
 
-def maybe_cleanup_file(file_path)
-  File.delete(file_path) if File.exist?(file_path)
-end
-
 RSpec.describe "Sidekiq integration" do
+  def maybe_cleanup_file(file_path)
+    File.delete(file_path) if File.exist?(file_path)
+  end
+
   before do
     maybe_cleanup_file(FakeWorker::JOB_RUN_PATH)
     maybe_cleanup_file(FakeWorker::JOB_SUCCESS_PATH)
@@ -20,8 +20,8 @@ RSpec.describe "Sidekiq integration" do
     pid = Process.spawn "bundle exec sidekiq -r #{path}"
     puts "Spawned process #{pid}"
     timeout = 30
-    start = Time.new
-    while (Time.new - start) < timeout
+    start = Time.now
+    while (Time.now - start) < timeout
       break if File.exist?(FakeWorker::JOB_RUN_PATH)
       sleep 0.5
     end

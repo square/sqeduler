@@ -39,6 +39,11 @@ module Sqeduler
             end
           end
 
+          # the server can also enqueue jobs
+          config.client_middleware do |chain|
+            chain.add(Sqeduler::Middleware::KillSwitch)
+          end
+
           Service.config.on_server_start.call(config) if Service.config.on_server_start
         end
       end
@@ -49,6 +54,10 @@ module Sqeduler
           setup_sidekiq_redis(config)
           if Service.config.on_client_start
             Service.config.on_client_start.call(config)
+          end
+
+          config.client_middleware do |chain|
+            chain.add(Sqeduler::Middleware::KillSwitch)
           end
         end
       end

@@ -18,13 +18,13 @@ module Sqeduler
       # provides an oppurtunity to log when the job has started (maybe create a
       # stateful db record for this job run?)
       def before_start
-        Service.logger.info "Starting #{self.class.name} at #{Time.new.utc} in process ID #{Process.pid}"
+        Service.logger.info "Starting #{self.class.name} at #{Time.now} in process ID #{Process.pid}"
         super if defined?(super)
       end
 
       # callback for successful run of this job
       def on_success(total_time)
-        Service.logger.info "#{self.class.name} completed at #{Time.new.utc}. Total time #{total_time}"
+        Service.logger.info "#{self.class.name} completed at #{Time.now}. Total time #{total_time}"
         super if defined?(super)
       end
 

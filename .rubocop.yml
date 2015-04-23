@@ -1,9 +1,8 @@
-AllCops:
-  RunRailsCops: true
-  DisplayCopNames: true
-
 Lint/EndAlignment:
   AlignWith: variable
+
+Metrics/AbcSize:
+  Enabled: false
 
 Metrics/ClassLength:
   Max: 150

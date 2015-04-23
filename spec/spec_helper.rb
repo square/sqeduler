@@ -15,7 +15,7 @@ Timecop.safe_mode = true
 RSpec.configure do |config|
   config.before(:each) do
     TEST_REDIS.flushdb
+    Sqeduler::Service.config = nil
   end
-
   config.disable_monkey_patching!
 end
