@@ -55,7 +55,11 @@ RSpec.describe Sqeduler::Service do
 
       context "a schedule_path is provided" do
         it "starts the scheduler" do
-          expect(Sidekiq).to receive(:"schedule=").with(YAML.load_file(schedule_filepath))
+          expect(Sidekiq).to receive(:"schedule=").with(
+            "FakeWorker" => {
+              "every" => "5s"
+            }
+          )
           subject
           expect(Sidekiq::Scheduler.rufus_scheduler_options).to have_key(:trigger_lock)
           expect(Sidekiq::Scheduler.rufus_scheduler_options[:trigger_lock]).to be_kind_of(
@@ -67,7 +71,11 @@ RSpec.describe Sqeduler::Service do
           let(:schedule_filepath) { "./spec/fixtures/schedule.yaml" }
 
           it "starts the scheduler" do
-            expect(Sidekiq).to receive(:"schedule=").with(YAML.load_file(schedule_filepath))
+            expect(Sidekiq).to receive(:"schedule=").with(
+              "FakeWorker" => {
+                "every" => "5s"
+              }
+            )
             subject
             expect(Sidekiq::Scheduler.rufus_scheduler_options).to have_key(:trigger_lock)
             expect(Sidekiq::Scheduler.rufus_scheduler_options[:trigger_lock]).to be_kind_of(
