@@ -76,5 +76,11 @@ RSpec.describe Sqeduler::TriggerLock do
       expect(trigger_lock_2.locked?).to be(true)
       expect(trigger_lock_1.unlock).to be(false)
     end
+
+    it "should not acquire the lock if there is an error" do
+      allow(trigger_lock_1).to receive(:refresh_lock).and_raise("boom")
+      expect(trigger_lock_1.lock).to be false
+      expect(trigger_lock_1.locked?).to be false
+    end
   end
 end

@@ -15,6 +15,8 @@ module Sqeduler
       # - return true if already acquired
       # - refresh the lock if already acquired
       refresh || super
+    rescue
+      false
     end
   end
 end
