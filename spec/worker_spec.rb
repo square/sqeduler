@@ -40,24 +40,33 @@ RSpec.describe Sqeduler::Worker do
                                :timeout => timeout
       end
 
-      let(:expiration) { work_time * 4 }
-      let(:work_time) { 0.1 }
+      # Eagerly initializing work_time and the like so that
+      # we don't introduce deadlocks inside of our subject. Believe
+      # this is related to RSpec 3.3 thread-safety changes: subject/let
+      # blocks are now sychronized across multiple threads. It's possible that the
+      # interaction between Celluloid (threading library for Sidekiq) and RSpec
+      # is causing the deadlock, but it's not exactly clear why.
+      # See for possible explanation: https://github.com/rspec/rspec-core/issues/2064
+      let!(:expiration) { work_time * 4 }
+      let!(:work_time) { 0.1 }
 
       subject do
         threads = []
         threads << Thread.new { FakeWorker.new.perform(work_time) }
         threads << Thread.new do
+          # TODO(jaredjenkins): figure out why this is causing a deadlock
+          # with out the eager loading the RSpec lets.
           sleep wait_time
           FakeWorker.new.perform(work_time)
         end
-        threads.each(&:join)
+        threads.select(&:alive?).each(&:join)
       end
 
       context "overlapping schedule" do
-        let(:wait_time) { 0 }
+        let!(:wait_time) { 0 }
 
         context "timeout is less than work_time (too short)" do
-          let(:timeout) { work_time / 2 }
+          let!(:timeout) { work_time / 2 }
 
           it "one worker should be blocked" do
             subject
@@ -91,7 +100,7 @@ RSpec.describe Sqeduler::Worker do
         end
 
         context "timeout is greater than work_time" do
-          let(:timeout) { work_time * 4 }
+          let!(:timeout) { work_time * 4 }
 
           it "no worker should be blocked" do
             subject
@@ -119,7 +128,7 @@ RSpec.describe Sqeduler::Worker do
           end
 
           context "expiration too short" do
-            let(:expiration) { work_time / 2 }
+            let!(:expiration) { work_time / 2 }
 
             it "no worker should be blocked" do
               subject
@@ -151,10 +160,10 @@ RSpec.describe Sqeduler::Worker do
       end
 
       context "non-overlapping schedule" do
-        let(:wait_time) { work_time * 2 }
+        let!(:wait_time) { work_time * 2 }
 
         context "timeout is less than work_time (too short)" do
-          let(:timeout) { work_time }
+          let!(:timeout) { work_time }
 
           it "no workers should be blocked" do
             subject
@@ -184,7 +193,7 @@ RSpec.describe Sqeduler::Worker do
         end
 
         context "timeout is greater than work_time" do
-          let(:timeout) { work_time * 2 }
+          let!(:timeout) { work_time * 2 }
 
           it "no worker should be blocked" do
             subject
@@ -207,7 +216,7 @@ RSpec.describe Sqeduler::Worker do
           end
 
           context "expiration too short" do
-            let(:expiration) { work_time / 2 }
+            let!(:expiration) { work_time / 2 }
 
             it "no worker should be blocked" do
               subject
