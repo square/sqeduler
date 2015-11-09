@@ -1,6 +1,10 @@
 Lint/EndAlignment:
   AlignWith: variable
 
+# Setting off false-positives :(
+Lint/UnneededDisable:
+  Enabled: false
+
 Metrics/AbcSize:
   Enabled: false
 
@@ -23,3 +27,5 @@ Style/StringLiterals:
 Style/Documentation:
   Exclude:
     - 'lib/sqeduler/version.rb'
+
+
