@@ -1,6 +1,10 @@
 Lint/EndAlignment:
   AlignWith: variable
 
+# Setting off false-positives :(
+Lint/UnneededDisable:
+  Enabled: false
+
 Metrics/AbcSize:
   Enabled: false
 
