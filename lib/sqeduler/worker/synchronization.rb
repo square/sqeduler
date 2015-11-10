@@ -93,7 +93,7 @@ module Sqeduler
 
       # rubocop:disable Metrics/AbcSize
       def time_duration(timespan)
-        rest, secs = timespan.divmod(60)  # self is the time difference t2 - t1
+        rest, secs = timespan.divmod(60) # self is the time difference t2 - t1
         rest, mins = rest.divmod(60)
         days, hours = rest.divmod(24)
 

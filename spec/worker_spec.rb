@@ -43,14 +43,15 @@ RSpec.describe Sqeduler::Worker do
       let(:expiration) { work_time * 4 }
       let(:work_time) { 0.1 }
 
-      subject do
-        threads = []
-        threads << Thread.new { FakeWorker.new.perform(work_time) }
-        threads << Thread.new do
+      def run_synchronized_workers
+        worker1 = Thread.new do
+          FakeWorker.new.perform(work_time)
+        end
+        worker2 = Thread.new do
           sleep wait_time
           FakeWorker.new.perform(work_time)
         end
-        threads.each(&:join)
+        worker1.join && worker2.join
       end
 
       context "overlapping schedule" do
@@ -60,32 +61,32 @@ RSpec.describe Sqeduler::Worker do
           let(:timeout) { work_time / 2 }
 
           it "one worker should be blocked" do
-            subject
+            run_synchronized_workers
             verify_callback_occured(FakeWorker::JOB_LOCK_FAILURE_PATH)
           end
 
           it "only one worker should run" do
-            subject
+            run_synchronized_workers
             verify_callback_occured(FakeWorker::JOB_RUN_PATH)
           end
 
           it "one worker should succeed" do
-            subject
+            run_synchronized_workers
             verify_callback_occured(FakeWorker::JOB_SUCCESS_PATH, 2)
           end
 
           it "no worker should fail" do
-            subject
+            run_synchronized_workers
             verify_callback_skipped(FakeWorker::JOB_FAILURE_PATH)
           end
 
           it "all workers should have received before_start" do
-            subject
+            run_synchronized_workers
             verify_callback_occured(FakeWorker::JOB_BEFORE_START_PATH, 2)
           end
 
           it "a schedule collision should not have occurred" do
-            subject
+            run_synchronized_workers
             verify_callback_skipped(FakeWorker::SCHEDULE_COLLISION_PATH)
           end
         end
@@ -94,27 +95,27 @@ RSpec.describe Sqeduler::Worker do
           let(:timeout) { work_time * 4 }
 
           it "no worker should be blocked" do
-            subject
+            run_synchronized_workers
             verify_callback_skipped(FakeWorker::JOB_LOCK_FAILURE_PATH)
           end
 
           it "both workers should succeed" do
-            subject
+            run_synchronized_workers
             verify_callback_occured(FakeWorker::JOB_SUCCESS_PATH, 2)
           end
 
           it "no worker should fail" do
-            subject
+            run_synchronized_workers
             verify_callback_skipped(FakeWorker::JOB_FAILURE_PATH)
           end
 
           it "all workers should have received before_start" do
-            subject
+            run_synchronized_workers
             verify_callback_occured(FakeWorker::JOB_BEFORE_START_PATH, 2)
           end
 
           it "a schedule collision should not have occurred" do
-            subject
+            run_synchronized_workers
             verify_callback_skipped(FakeWorker::SCHEDULE_COLLISION_PATH)
           end
 
@@ -122,28 +123,28 @@ RSpec.describe Sqeduler::Worker do
             let(:expiration) { work_time / 2 }
 
             it "no worker should be blocked" do
-              subject
+              run_synchronized_workers
               verify_callback_skipped(FakeWorker::JOB_LOCK_FAILURE_PATH)
             end
 
             it "all workers should run" do
-              subject
+              run_synchronized_workers
               verify_callback_occured(FakeWorker::JOB_RUN_PATH, 2)
             end
 
             it "all workers should have received before_start" do
-              subject
+              run_synchronized_workers
               verify_callback_occured(FakeWorker::JOB_BEFORE_START_PATH, 2)
             end
 
             it "no worker should fail" do
-              subject
+              run_synchronized_workers
               verify_callback_occured(FakeWorker::JOB_SUCCESS_PATH, 2)
               verify_callback_skipped(FakeWorker::JOB_FAILURE_PATH)
             end
 
             it "a schedule collision should occur" do
-              subject
+              run_synchronized_workers
               verify_callback_occured(FakeWorker::SCHEDULE_COLLISION_PATH, 2)
             end
           end
@@ -157,28 +158,28 @@ RSpec.describe Sqeduler::Worker do
           let(:timeout) { work_time }
 
           it "no workers should be blocked" do
-            subject
+            run_synchronized_workers
             verify_callback_skipped(FakeWorker::JOB_LOCK_FAILURE_PATH)
           end
 
           it "all workers should run" do
-            subject
+            run_synchronized_workers
             verify_callback_occured(FakeWorker::JOB_RUN_PATH, 2)
           end
 
           it "no worker should fail" do
-            subject
+            run_synchronized_workers
             verify_callback_occured(FakeWorker::JOB_SUCCESS_PATH, 2)
             verify_callback_skipped(FakeWorker::JOB_FAILURE_PATH)
           end
 
           it "all workers should have received before_start" do
-            subject
+            run_synchronized_workers
             verify_callback_occured(FakeWorker::JOB_BEFORE_START_PATH, 2)
           end
 
           it "a schedule collision should not have occurred" do
-            subject
+            run_synchronized_workers
             verify_callback_skipped(FakeWorker::SCHEDULE_COLLISION_PATH)
           end
         end
@@ -187,22 +188,22 @@ RSpec.describe Sqeduler::Worker do
           let(:timeout) { work_time * 2 }
 
           it "no worker should be blocked" do
-            subject
+            run_synchronized_workers
             verify_callback_skipped(FakeWorker::JOB_LOCK_FAILURE_PATH)
           end
 
           it "both workers should succeed" do
-            subject
+            run_synchronized_workers
             verify_callback_occured(FakeWorker::JOB_SUCCESS_PATH, 2)
           end
 
           it "no worker should fail" do
-            subject
+            run_synchronized_workers
             verify_callback_skipped(FakeWorker::JOB_FAILURE_PATH)
           end
 
           it "all workers should have received before_start" do
-            subject
+            run_synchronized_workers
             verify_callback_occured(FakeWorker::JOB_BEFORE_START_PATH, 2)
           end
 
@@ -210,28 +211,28 @@ RSpec.describe Sqeduler::Worker do
             let(:expiration) { work_time / 2 }
 
             it "no worker should be blocked" do
-              subject
+              run_synchronized_workers
               verify_callback_skipped(FakeWorker::JOB_LOCK_FAILURE_PATH)
             end
 
             it "all workers should run" do
-              subject
+              run_synchronized_workers
               verify_callback_occured(FakeWorker::JOB_RUN_PATH, 2)
             end
 
             it "all workers should have received before_start" do
-              subject
+              run_synchronized_workers
               verify_callback_occured(FakeWorker::JOB_BEFORE_START_PATH, 2)
             end
 
             it "no worker should fail" do
-              subject
+              run_synchronized_workers
               verify_callback_occured(FakeWorker::JOB_SUCCESS_PATH, 2)
               verify_callback_skipped(FakeWorker::JOB_FAILURE_PATH)
             end
 
             it "a schedule collision should occur" do
-              subject
+              run_synchronized_workers
               verify_callback_occured(FakeWorker::SCHEDULE_COLLISION_PATH, 2)
             end
           end
