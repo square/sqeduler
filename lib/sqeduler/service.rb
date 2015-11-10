@@ -73,10 +73,16 @@ module Sqeduler
           ::Sidekiq::Scheduler.rufus_scheduler_options = {
             :trigger_lock => TriggerLock.new
           }
-          ::Sidekiq.schedule = YAML.load_file(config.schedule_path)
+          ::Sidekiq.schedule = parse_schedule(config.schedule_path)
         else
           logger.warn "No schedule_path provided. Not starting Sidekiq::Scheduler."
         end
+      end
+
+      def parse_schedule(path)
+        fail "Schedule file #{path} does not exist!" unless File.exist?(path)
+        file_contents = File.read(path)
+        YAML.load(ERB.new(file_contents).result)
       end
 
       def scheduling?

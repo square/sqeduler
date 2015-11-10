@@ -1,2 +1,2 @@
 FakeWorker:
-  every: 5s
+  every: <%=5%>s
