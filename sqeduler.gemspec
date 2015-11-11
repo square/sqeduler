@@ -10,7 +10,7 @@ Gem::Specification.new do |gem|
   multiple hosts. Also provides a convenient abstract class for Sidekiq workers.
   DESC
   gem.license       = "Apache"
-  gem.authors       = '["Jared Jenkins"]'
+  gem.authors       = ["Jared Jenkins"]
   gem.email         = "jaredjenkins@squareup.com"
   gem.homepage      = "https://rubygems.org/gems/sqeduler"
 
@@ -20,10 +20,10 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
 
   gem.add_runtime_dependency "sidekiq"
-  gem.add_runtime_dependency "sidekiq-scheduler"
+  gem.add_runtime_dependency "sidekiq-scheduler", "~> 1.1"
   gem.add_runtime_dependency "activesupport"
 
-  gem.add_development_dependency "bundler", "~> 1.7"
+  gem.add_development_dependency "bundler", "~> 1.10"
   gem.add_development_dependency "pry", "~> 0"
   gem.add_development_dependency "rake", "~> 10"
   gem.add_development_dependency "rspec", "~> 3.3"
