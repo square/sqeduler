@@ -10,7 +10,7 @@ Gem::Specification.new do |gem|
   multiple hosts. Also provides a convenient abstract class for Sidekiq workers.
   DESC
   gem.license       = "Apache"
-  gem.authors       = '["Jared Jenkins"]'
+  gem.authors       = ["Jared Jenkins"]
   gem.email         = "jaredjenkins@squareup.com"
   gem.homepage      = "https://rubygems.org/gems/sqeduler"
 
