@@ -5,7 +5,7 @@ module Sqeduler
   # Singleton class for configuring this Gem.
   class Service
     SCHEDULER_TIMEOUT = 60
-    MINIMUM_REDIS_VERSION = "2.6.12"
+    MINIMUM_REDIS_VERSION = "2.6.12".freeze
 
     class << self
       attr_accessor :config
@@ -104,11 +104,8 @@ module Sqeduler
 
       def logger
         return config.logger if config.logger
-        if defined?(Rails)
-          Rails.logger
-        else
-          fail ArgumentError, "No logger provided and Rails.logger cannot be inferred"
-        end
+        return Rails.logger if defined?(Rails)
+        fail ArgumentError, "No logger provided and Rails.logger cannot be inferred"
       end
     end
   end

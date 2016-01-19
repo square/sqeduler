@@ -23,12 +23,13 @@ module Sqeduler
     def load_sha(redis, script_name)
       @redis_sha_cache ||= {}
       @redis_sha_cache[script_name] ||= begin
-        script = if script_name == :refresh
-          refresh_lock_script
-        elsif script_name == :release
-          release_lock_script
-        else
-          fail "No script for #{script_name}"
+        script = case script_name
+                 when :refresh
+                   refresh_lock_script
+                 when :release
+                   release_lock_script
+                 else
+                   fail "No script for #{script_name}"
         end
         # strip leading whitespace of 8 characters
         redis.script(:load, script.gsub(/^ {8}/, ""))
