@@ -19,11 +19,10 @@ Provides loosely-coupled helpers for Sidekiq workers. Provides highly available 
 
 ## Examples
 
-To install this gem with necessary forks:
+To install this gem, add it to your Gemfile:
 
 ```ruby
 gem 'sqeduler'
-gem 'sidekiq-scheduler', :github => 'ecin/sidekiq-scheduler', :branch => 'ecin/redis-lock' # https://github.com/Moove-it/sidekiq-scheduler/pull/38
 ```
 
 ### Scheduling
