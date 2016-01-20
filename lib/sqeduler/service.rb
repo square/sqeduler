@@ -44,6 +44,7 @@ module Sqeduler
             chain.add(Sqeduler::Middleware::KillSwitch)
           end
 
+          LockMaintainer.new.run if Service.config.maintain_locks
           Service.config.on_server_start.call(config) if Service.config.on_server_start
         end
       end

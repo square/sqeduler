@@ -47,6 +47,8 @@ config.on_server_start = proc {|config| ... }
 config.on_client_start = proc {|config| ... }
 # required if you want to start the Sidekiq::Scheduler
 config.schedule_path = Rails.root.join('config').join('sidekiq_schedule.yml')
+# optional to maintain locks for exclusive jobs, see "Lock Maintainer" below
+config.maintain_locks = true
 
 Sqeduler::Service.config = config
 # Starts Sidekiq and Sidekiq::Scheduler
@@ -55,6 +57,12 @@ Sqeduler::Service.start
 
 See documentation for [Sidekiq::Scheduler](https://github.com/Moove-it/sidekiq-scheduler#scheduled-jobs-recurring-jobs)
 for specifics on how to construct your schedule YAML file.
+
+### Lock Maintainer
+
+Exclusive locks only last for the expiration you set. If your expiration is 30 seconds and the job runs for 60 seconds, you can have multiple jobs running at once. Rather than having to set absurdly high lock expirations, you can enable the `maintain_locks` option which handles this for you.
+
+Every 30 seconds, Sqeduler will look for any exclusive Sidekiq jobs that have been running for more than 30 seconds, and have a lock expiration of more than 30 seconds and refresh the lock.
 
 ### Worker Helpers
 
