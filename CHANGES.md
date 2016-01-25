@@ -1,3 +1,7 @@
+### 0.3.0 / 2016-01-25
+
+* Added lock refresh to maintain exclusive locks until long running jobs finish
+
 ### 0.2.2 / 2015-11-11
 
 * Support ERB in job schedules

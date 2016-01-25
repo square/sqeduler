@@ -27,12 +27,20 @@ module Sqeduler
           return if synchronize_jobs_expiration
           fail ArgumentError, ":expiration is required!"
         end
+
+        def sync_lock_key(*args)
+          if args.empty?
+            name
+          else
+            "#{name}-#{args.join}"
+          end
+        end
       end
       # rubocop:enable Style/Documentation
 
       def perform(*args)
         if self.class.synchronize_jobs_mode == :one_at_a_time
-          perform_locked(sync_lock_key(*args)) do
+          perform_locked(self.class.sync_lock_key(*args)) do
             perform_timed do
               super
             end
@@ -43,14 +51,6 @@ module Sqeduler
       end
 
       private
-
-      def sync_lock_key(*args)
-        if args.empty?
-          self.class.name
-        else
-          "#{self.class.name}-#{args.join}"
-        end
-      end
 
       # callback for when a lock cannot be obtained
       def on_lock_timeout(key)
