@@ -63,7 +63,7 @@ module Sqeduler
       klass = class_name.constantize
       if klass.respond_to?(:synchronize_jobs_mode)
         # We only care about exclusive jobs that are long running
-        if klass.synchronize_jobs_mode == :one_at_a_time && klass.synchronize_jobs_timeout >= RUN_INTERVAL
+        if klass.synchronize_jobs_mode == :one_at_a_time && klass.synchronize_jobs_expiration >= RUN_INTERVAL
           return @class_with_locks[class_name] = klass
         end
       end

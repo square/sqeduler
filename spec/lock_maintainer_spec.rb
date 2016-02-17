@@ -10,10 +10,23 @@ RSpec.describe Sqeduler::LockMaintainer do
       Class.new do
         include Sidekiq::Worker
         prepend Sqeduler::Worker::Synchronization
-        synchronize :one_at_a_time, :expiration => 300, :timeout => 30
+        synchronize :one_at_a_time, :expiration => 300, :timeout => 5
 
         def perform(*_args)
           yield
+        end
+      end
+    )
+
+    stub_const(
+      "SyncShortWorker",
+      Class.new do
+        include Sidekiq::Worker
+        prepend Sqeduler::Worker::Synchronization
+        synchronize :one_at_a_time, :expiration => 5, :timeout => 5
+
+        def perform
+          fail "This shouldn't be called"
         end
       end
     )
@@ -71,6 +84,17 @@ RSpec.describe Sqeduler::LockMaintainer do
             "run_at" => run_at,
             "payload" => {
               "class" => "SyncExclusiveWorker",
+              "args" => job_args
+            }
+          }
+        ],
+        [
+          "process-key",
+          "worker-tid-6789",
+          {
+            "run_at" => run_at,
+            "payload" => {
+              "class" => "SyncShortWorker",
               "args" => job_args
             }
           }
