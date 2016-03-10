@@ -1,3 +1,8 @@
+### 0.3.2 / 2016-03-10
+
+* Fixed lock refresher failing to lock properly for exclusive runs
+* Added debug logs for lock refresher 
+
 ### 0.3.1 / 2016-02-17
 
 * Fixed lock refresh checking timeout rather than expiration for finding eligible jobs
