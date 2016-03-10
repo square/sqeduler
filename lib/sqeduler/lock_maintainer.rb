@@ -17,9 +17,16 @@ module Sqeduler
       @maintainer_thread ||= Thread.new do
         loop do
           begin
-            synchronize
+            if redis_lock.lock
+              begin
+                synchronize
+              ensure
+                redis_lock.unlock
+              end
+            end
+
           rescue => ex
-            Service.logger.error "[SQEDULER LOCK MAINTAINER] #{ex.class}, #{ex.message}"
+            Service.logger.error "[#{self.class}] #{ex.class}, #{ex.message}"
           end
 
           sleep RUN_INTERVAL + rand(RUN_JITTER)
@@ -30,10 +37,6 @@ module Sqeduler
     private
 
     def synchronize
-      # Not great, but finding our identity in Sidekiq is a pain, and we already have locks in Sqeduler.
-      # Easier to just try and grab a lock each time and whichever server wins gets to do it.
-      return unless redis_lock.send(:take_lock)
-
       now = Time.now.to_i
 
       Service.redis_pool do |redis|
@@ -51,6 +54,9 @@ module Sqeduler
             # We don't have to worry about atomic operations or anything like that.
             # If the job finishes in the interim and deletes the key nothing will happen.
             redis.expire(lock_key, klass.synchronize_jobs_expiration)
+
+            Service.logger.debug "[#{self.class}] Refreshing lock on '#{lock_key}" \
+              "to #{klass.synchronize_jobs_expiration} seconds"
           end
         end
       end
@@ -64,10 +70,12 @@ module Sqeduler
       if klass.respond_to?(:synchronize_jobs_mode)
         # We only care about exclusive jobs that are long running
         if klass.synchronize_jobs_mode == :one_at_a_time && klass.synchronize_jobs_expiration >= RUN_INTERVAL
+          Service.logger.debug "[#{self.class}] Adding #{class_name} to the whitelist of classes that have locks"
           return @class_with_locks[class_name] = klass
         end
       end
 
+      Service.logger.debug "[#{self.class}] Adding #{class_name} to the blacklist of classes that have locks"
       @class_with_locks[class_name] = false
     end
 
