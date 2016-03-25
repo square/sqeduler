@@ -1,3 +1,7 @@
+### 0.3.3 / 2016-03-25
+
+* Fixed lock refresher not calling `redis_pool` properly so it wouldn't actually run
+
 ### 0.3.2 / 2016-03-10
 
 * Fixed lock refresher failing to lock properly for exclusive runs

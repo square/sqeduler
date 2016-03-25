@@ -39,7 +39,7 @@ module Sqeduler
     def synchronize
       now = Time.now.to_i
 
-      Service.redis_pool do |redis|
+      Service.redis_pool.with do |redis|
         redis.pipelined do
           workers.each do |_worker, _tid, args|
             # No sense in pinging if it's not been running long enough to matter
