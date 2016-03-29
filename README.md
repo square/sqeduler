@@ -55,6 +55,8 @@ Sqeduler::Service.config = config
 Sqeduler::Service.start
 ```
 
+You can also pass in your own `ConnectionPool` instance as `config.redis_pool` rather than providing configuration in `redis_hash`. If you do so, it's recommended to use a `Redis::Namespace` so that the keys sqeduler sets are namespaced uniquely.
+
 See documentation for [Sidekiq::Scheduler](https://github.com/Moove-it/sidekiq-scheduler#scheduled-jobs-recurring-jobs)
 for specifics on how to construct your schedule YAML file.
 

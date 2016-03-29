@@ -6,6 +6,12 @@ RSpec.describe Sqeduler::Service do
     Logger.new(STDOUT).tap { |l| l.level = Logger::DEBUG }
   end
 
+  before do
+    described_class.instance_variables.each do |ivar|
+      described_class.remove_instance_variable(ivar)
+    end
+  end
+
   describe ".start" do
     subject { described_class.start }
 
@@ -103,6 +109,32 @@ RSpec.describe Sqeduler::Service do
       described_class.config = Sqeduler::Config.new.tap do |config|
         config.redis_hash = REDIS_CONFIG
         config.logger = logger
+      end
+    end
+
+    context "with pool provided in config" do
+      let(:original_pool) do
+        ConnectionPool.new(:size => 10, :timeout => 0.1) do
+          Redis::Namespace.new("sqeduler", :client => Redis.new(REDIS_CONFIG))
+        end
+      end
+
+      before do
+        described_class.config = Sqeduler::Config.new.tap do |config|
+          config.redis_pool = original_pool
+          config.logger = logger
+        end
+      end
+
+      it "doesn't create a connection pool" do
+        expect(subject.object_id).to eq(original_pool.object_id)
+      end
+
+      it "checks redis version" do
+        allow_any_instance_of(Redis).to receive(:info).and_return(
+          "redis_version" => "2.6.11"
+        )
+        expect { subject }.to raise_error
       end
     end
 

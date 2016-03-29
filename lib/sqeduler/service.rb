@@ -95,12 +95,18 @@ module Sqeduler
       # separate from Sidekiq's so that we don't saturate the client and server connection
       # pools.
       def redis_pool
-        @redis_pool ||= begin
+        @redis_pool ||= config_redis_pool
+      end
+
+      def config_redis_pool
+        redis_pool = if config.redis_pool
+          config.redis_pool
+        else
           redis = { :namespace => "sqeduler" }.merge(config.redis_hash)
-          ::Sidekiq::RedisConnection.create(redis).tap do |redis_pool|
-            verify_redis_pool(redis_pool)
-          end
+          ::Sidekiq::RedisConnection.create(redis)
         end
+        verify_redis_pool(redis_pool)
+        redis_pool
       end
 
       def logger
