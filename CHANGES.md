@@ -1,3 +1,7 @@
+### 0.3.5 / 2016-05-03
+
+* Move sidekiq-scheduler from 1.x to 2.x
+
 ### 0.3.4 / 2016-03-28
 
 * Add ability to use a client-provided connection pool rather than creating one

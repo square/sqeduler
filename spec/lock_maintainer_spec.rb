@@ -26,7 +26,7 @@ RSpec.describe Sqeduler::LockMaintainer do
         synchronize :one_at_a_time, :expiration => 5, :timeout => 5
 
         def perform
-          fail "This shouldn't be called"
+          raise "This shouldn't be called"
         end
       end
     )
@@ -38,7 +38,7 @@ RSpec.describe Sqeduler::LockMaintainer do
         prepend Sqeduler::Worker::Synchronization
 
         def perform
-          fail "This shouldn't be called"
+          raise "This shouldn't be called"
         end
       end
     )

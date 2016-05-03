@@ -29,7 +29,7 @@ module Sqeduler
                  when :release
                    release_lock_script
                  else
-                   fail "No script for #{script_name}"
+                   raise "No script for #{script_name}"
         end
         # strip leading whitespace of 8 characters
         redis.script(:load, script.gsub(/^ {8}/, ""))
