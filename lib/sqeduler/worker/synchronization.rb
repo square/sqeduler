@@ -9,7 +9,7 @@ module Sqeduler
     module Synchronization
       def self.prepended(base)
         if base.ancestors.include?(Sqeduler::Worker::Callbacks)
-          fail "Sqeduler::Worker::Callbacks must be the last module that you prepend."
+          raise "Sqeduler::Worker::Callbacks must be the last module that you prepend."
         end
 
         base.extend(ClassMethods)
@@ -25,7 +25,7 @@ module Sqeduler
           self.synchronize_jobs_timeout = opts[:timeout] || 5
           self.synchronize_jobs_expiration = opts[:expiration]
           return if synchronize_jobs_expiration
-          fail ArgumentError, ":expiration is required!"
+          raise ArgumentError, ":expiration is required!"
         end
 
         def sync_lock_key(*args)

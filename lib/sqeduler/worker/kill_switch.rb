@@ -7,7 +7,7 @@ module Sqeduler
 
       def self.prepended(base)
         if base.ancestors.include?(Sqeduler::Worker::Callbacks)
-          fail "Sqeduler::Worker::Callbacks must be the last module that you prepend."
+          raise "Sqeduler::Worker::Callbacks must be the last module that you prepend."
         end
         base.extend(ClassMethods)
       end

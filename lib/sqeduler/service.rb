@@ -11,7 +11,7 @@ module Sqeduler
       attr_accessor :config
 
       def start
-        fail "No config provided" unless config
+        raise "No config provided" unless config
         config_sidekiq_server
         config_sidekiq_client
         config_scheduler
@@ -22,7 +22,7 @@ module Sqeduler
         redis_pool.with do |redis|
           version = redis.info["redis_version"]
           unless Gem::Version.new(version) >= Gem::Version.new(MINIMUM_REDIS_VERSION)
-            fail "Must be using redis >= #{MINIMUM_REDIS_VERSION}"
+            raise "Must be using redis >= #{MINIMUM_REDIS_VERSION}"
           end
           @verified = true
         end
@@ -81,7 +81,7 @@ module Sqeduler
       end
 
       def parse_schedule(path)
-        fail "Schedule file #{path} does not exist!" unless File.exist?(path)
+        raise "Schedule file #{path} does not exist!" unless File.exist?(path)
         file_contents = File.read(path)
         YAML.load(ERB.new(file_contents).result)
       end
@@ -112,7 +112,7 @@ module Sqeduler
       def logger
         return config.logger if config.logger
         return Rails.logger if defined?(Rails)
-        fail ArgumentError, "No logger provided and Rails.logger cannot be inferred"
+        raise ArgumentError, "No logger provided and Rails.logger cannot be inferred"
       end
     end
   end

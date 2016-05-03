@@ -13,7 +13,7 @@ module Sqeduler
     def initialize(key, options = {})
       @key = key
       @expiration = options[:expiration]
-      fail ArgumentError, "Expiration must be provided!" unless @expiration
+      raise ArgumentError, "Expiration must be provided!" unless @expiration
       @timeout = options[:timeout] || 5
     end
 
@@ -64,10 +64,10 @@ module Sqeduler
     end
 
     def self.with_lock(key, options)
-      fail "Block is required" unless block_given?
+      raise "Block is required" unless block_given?
       mutex = new(key, options)
       unless mutex.lock
-        fail LockTimeoutError, "Timed out trying to get #{key} lock. Exceeded #{mutex.timeout} sec"
+        raise LockTimeoutError, "Timed out trying to get #{key} lock. Exceeded #{mutex.timeout} sec"
       end
       begin
         yield
