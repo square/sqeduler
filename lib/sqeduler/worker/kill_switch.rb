@@ -12,6 +12,12 @@ module Sqeduler
         base.extend(ClassMethods)
       end
 
+      def self.disabled
+        Service.redis_pool.with do |redis|
+          redis.hgetall(SIDEKIQ_DISABLED_WORKERS)
+        end
+      end
+
       # rubocop:disable Style/Documentation
       module ClassMethods
         def enable
