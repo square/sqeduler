@@ -102,7 +102,8 @@ module Sqeduler
         redis_pool = if config.redis_pool
           config.redis_pool
         else
-          redis = { :namespace => "sqeduler" }.merge(config.redis_hash)
+          # Redis requires config hash to have symbols as keys.
+          redis = { :namespace => "sqeduler" }.merge(symbolize_keys(config.redis_hash))
           ::Sidekiq::RedisConnection.create(redis)
         end
         verify_redis_pool(redis_pool)
@@ -113,6 +114,12 @@ module Sqeduler
         return config.logger if config.logger
         return Rails.logger if defined?(Rails)
         raise ArgumentError, "No logger provided and Rails.logger cannot be inferred"
+      end
+
+      private
+
+      def symbolize_keys(hash)
+        hash.map { |k, v| [k.to_sym, v] }.to_h
       end
     end
   end
