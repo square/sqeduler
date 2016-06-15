@@ -72,6 +72,8 @@ To use `Sqeduler::Worker` modules:
 * You **DO NOT need** to use this gem for starting Sidekiq or Sidekiq::Scheduler (i.e: `Sqeduler::Service.start`)
 * You **DO need** to provide at `config.redis_hash`, and `config.logger` if you don't want to log to `Rails.logger`.
   * This gem creates a separate `ConnectionPool` so that it can create locks for synchronization and store state for disabling/enabling workers.
+* You **DO need** to `include`/`prepend` these modules in the actual working class
+  * They will not work if done in a parent class because of the way `prepend` works in conjunction with inheritance.
 
 The modules:
 
