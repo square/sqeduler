@@ -1,3 +1,8 @@
+### 0.3.6 / 2016-06-16
+
+* Symbolize keys in redis config hash
+* Add method to list disabled workers
+
 ### 0.3.5 / 2016-05-03
 
 * Move sidekiq-scheduler from 1.x to 2.x
