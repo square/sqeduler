@@ -171,6 +171,40 @@ RSpec.describe Sqeduler::Service do
         expect { described_class.redis_pool }.to raise_error
       end
     end
+
+    context "when provided redis_hash has strings as keys" do
+      let(:expected_redis_config) do
+        REDIS_CONFIG.merge(:namespace => "sqeduler")
+      end
+
+      before do
+        described_class.config = Sqeduler::Config.new.tap do |config|
+          config.redis_hash = REDIS_CONFIG.map { |k, v| [k.to_s, v] }.to_h
+          config.logger = logger
+        end
+      end
+
+      it "converts keys to symbols to create redis" do
+        expect(::Sidekiq::RedisConnection).to receive(:create).with(expected_redis_config).and_call_original
+        subject
+      end
+    end
+
+    context "with namespace provided in redis_hash" do
+      let(:redis_hash) { REDIS_CONFIG.merge(:namespace => "foo") }
+
+      before do
+        described_class.config = Sqeduler::Config.new.tap do |config|
+          config.redis_hash = redis_hash
+          config.logger = logger
+        end
+      end
+
+      it "uses the provided namespace" do
+        expect(::Sidekiq::RedisConnection).to receive(:create).with(redis_hash).and_call_original
+        subject
+      end
+    end
   end
 
   describe ".logger" do
