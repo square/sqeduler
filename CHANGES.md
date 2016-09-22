@@ -1,3 +1,7 @@
+### 0.3.7 / 2016-09-21
+
+* Fixed a bug introduced by sidekiq-scheduler 2.0.9 that resulted in the schedule being empty
+
 ### 0.3.6 / 2016-06-16
 
 * Symbolize keys in redis config hash
