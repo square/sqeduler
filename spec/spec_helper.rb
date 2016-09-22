@@ -12,7 +12,7 @@ RSpec.configure do |config|
   config.before(:each) do
     TEST_REDIS.flushdb
     Sqeduler::Service.config = nil
-    REDIS_CONFIG = { :host => "localhost", :db => 1 }.clone
+    stub_const("REDIS_CONFIG", :host => "localhost", :db => 1)
   end
   config.disable_monkey_patching!
 end

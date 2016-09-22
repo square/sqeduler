@@ -17,7 +17,7 @@ RSpec.describe Sqeduler::Service do
 
     context "no config provided" do
       it "should raise" do
-        expect { subject }.to raise_error
+        expect { subject }.to raise_error(RuntimeError, "No config provided")
       end
     end
 
@@ -38,12 +38,12 @@ RSpec.describe Sqeduler::Service do
         )
       end
 
-      it "starts the server" do
+      it "configures the server" do
         expect(Sidekiq).to receive(:configure_server)
         subject
       end
 
-      it "starts the client" do
+      it "configures the client" do
         expect(Sidekiq).to receive(:configure_client)
         subject
       end
@@ -57,47 +57,6 @@ RSpec.describe Sqeduler::Service do
       it "calls the appropriate on_client_start callbacks" do
         expect(client_receiver).to receive(:call)
         subject
-      end
-
-      context "a schedule_path is provided" do
-        it "starts the scheduler" do
-          expect(Sidekiq).to receive(:"schedule=").with(
-            "FakeWorker" => {
-              "every" => "5s"
-            }
-          )
-          subject
-          expect(Sidekiq::Scheduler.rufus_scheduler_options).to have_key(:trigger_lock)
-          expect(Sidekiq::Scheduler.rufus_scheduler_options[:trigger_lock]).to be_kind_of(
-            Sqeduler::TriggerLock
-          )
-        end
-
-        context "a schedule_path is a string" do
-          let(:schedule_filepath) { "./spec/fixtures/schedule.yaml" }
-
-          it "starts the scheduler" do
-            expect(Sidekiq).to receive(:"schedule=").with(
-              "FakeWorker" => {
-                "every" => "5s"
-              }
-            )
-            subject
-            expect(Sidekiq::Scheduler.rufus_scheduler_options).to have_key(:trigger_lock)
-            expect(Sidekiq::Scheduler.rufus_scheduler_options[:trigger_lock]).to be_kind_of(
-              Sqeduler::TriggerLock
-            )
-          end
-        end
-      end
-
-      context "a schedule_path is not provided" do
-        let(:schedule_filepath) { nil }
-
-        it "does not start the scheduler" do
-          expect(Sidekiq).to_not receive(:"schedule=")
-          subject
-        end
       end
     end
   end
@@ -134,7 +93,7 @@ RSpec.describe Sqeduler::Service do
         allow_any_instance_of(Redis).to receive(:info).and_return(
           "redis_version" => "2.6.11"
         )
-        expect { subject }.to raise_error
+        expect { subject }.to raise_error(RuntimeError, "Must be using redis >= 2.6.12")
       end
     end
 
@@ -168,7 +127,7 @@ RSpec.describe Sqeduler::Service do
       end
 
       it "should raise" do
-        expect { described_class.redis_pool }.to raise_error
+        expect { described_class.redis_pool }.to raise_error(RuntimeError, "Must be using redis >= 2.6.12")
       end
     end
 
@@ -226,7 +185,7 @@ RSpec.describe Sqeduler::Service do
       let(:logger) { nil }
 
       it "should raise ArgumentError" do
-        expect { subject }.to raise_error(ArgumentError)
+        expect { subject }.to raise_error(ArgumentError, /^No logger provided/)
       end
 
       context "in a Rails app" do

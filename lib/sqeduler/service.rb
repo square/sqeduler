@@ -14,7 +14,6 @@ module Sqeduler
         raise "No config provided" unless config
         config_sidekiq_server
         config_sidekiq_client
-        config_scheduler
       end
 
       def verify_redis_pool(redis_pool)
@@ -33,10 +32,22 @@ module Sqeduler
         ::Sidekiq.configure_server do |config|
           setup_sidekiq_redis(config)
           if Service.scheduling?
+            logger.info "Initializing Sidekiq::Scheduler with schedule #{::Sqeduler::Service.config.schedule_path}"
+
+            config.on(:startup) do
+              ::Sidekiq::Scheduler.rufus_scheduler_options = {
+                :trigger_lock => TriggerLock.new
+              }
+              ::Sidekiq.schedule = ::Sqeduler::Service.parse_schedule(::Sqeduler::Service.config.schedule_path)
+              ::Sidekiq::Scheduler.reload_schedule!
+            end
+
             config.on(:shutdown) do
               # Make sure any scheduling locks are released on shutdown.
-              Sidekiq::Scheduler.rufus_scheduler.stop
+              ::Sidekiq::Scheduler.rufus_scheduler.stop
             end
+          else
+            logger.warn "No schedule_path provided. Not starting Sidekiq::Scheduler."
           end
 
           # the server can also enqueue jobs
@@ -66,23 +77,6 @@ module Sqeduler
       def setup_sidekiq_redis(config)
         return if Service.config.redis_hash.nil? || Service.config.redis_hash.empty?
         config.redis = Service.config.redis_hash
-      end
-
-      def config_scheduler
-        if scheduling?
-          logger.info "Initializing Sidekiq::Scheduler with schedule #{config.schedule_path}"
-          ::Sidekiq.configure_server do |config|
-            config.on(:startup) do
-              ::Sidekiq::Scheduler.rufus_scheduler_options = {
-                :trigger_lock => TriggerLock.new
-              }
-              ::Sidekiq.schedule = ::Sqeduler::Service.parse_schedule(::Sqeduler::Service.config.schedule_path)
-              ::Sidekiq::Scheduler.reload_schedule!
-            end
-          end
-        else
-          logger.warn "No schedule_path provided. Not starting Sidekiq::Scheduler."
-        end
       end
 
       def parse_schedule(path)
