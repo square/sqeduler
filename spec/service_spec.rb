@@ -58,47 +58,6 @@ RSpec.describe Sqeduler::Service do
         expect(client_receiver).to receive(:call)
         subject
       end
-
-      context "a schedule_path is provided" do
-        it "starts the scheduler" do
-          expect(Sidekiq).to receive(:"schedule=").with(
-            "FakeWorker" => {
-              "every" => "5s"
-            }
-          )
-          subject
-          expect(Sidekiq::Scheduler.rufus_scheduler_options).to have_key(:trigger_lock)
-          expect(Sidekiq::Scheduler.rufus_scheduler_options[:trigger_lock]).to be_kind_of(
-            Sqeduler::TriggerLock
-          )
-        end
-
-        context "a schedule_path is a string" do
-          let(:schedule_filepath) { "./spec/fixtures/schedule.yaml" }
-
-          it "starts the scheduler" do
-            expect(Sidekiq).to receive(:"schedule=").with(
-              "FakeWorker" => {
-                "every" => "5s"
-              }
-            )
-            subject
-            expect(Sidekiq::Scheduler.rufus_scheduler_options).to have_key(:trigger_lock)
-            expect(Sidekiq::Scheduler.rufus_scheduler_options[:trigger_lock]).to be_kind_of(
-              Sqeduler::TriggerLock
-            )
-          end
-        end
-      end
-
-      context "a schedule_path is not provided" do
-        let(:schedule_filepath) { nil }
-
-        it "does not start the scheduler" do
-          expect(Sidekiq).to_not receive(:"schedule=")
-          subject
-        end
-      end
     end
   end
 
