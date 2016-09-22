@@ -17,7 +17,7 @@ RSpec.describe Sqeduler::Service do
 
     context "no config provided" do
       it "should raise" do
-        expect { subject }.to raise_error
+        expect { subject }.to raise_error(RuntimeError, "No config provided")
       end
     end
 
@@ -38,12 +38,12 @@ RSpec.describe Sqeduler::Service do
         )
       end
 
-      it "starts the server" do
+      it "configures the server" do
         expect(Sidekiq).to receive(:configure_server)
         subject
       end
 
-      it "starts the client" do
+      it "configures the client" do
         expect(Sidekiq).to receive(:configure_client)
         subject
       end
@@ -134,7 +134,7 @@ RSpec.describe Sqeduler::Service do
         allow_any_instance_of(Redis).to receive(:info).and_return(
           "redis_version" => "2.6.11"
         )
-        expect { subject }.to raise_error
+        expect { subject }.to raise_error(RuntimeError, "Must be using redis >= 2.6.12")
       end
     end
 
@@ -168,7 +168,7 @@ RSpec.describe Sqeduler::Service do
       end
 
       it "should raise" do
-        expect { described_class.redis_pool }.to raise_error
+        expect { described_class.redis_pool }.to raise_error(RuntimeError, "Must be using redis >= 2.6.12")
       end
     end
 
@@ -226,7 +226,7 @@ RSpec.describe Sqeduler::Service do
       let(:logger) { nil }
 
       it "should raise ArgumentError" do
-        expect { subject }.to raise_error(ArgumentError)
+        expect { subject }.to raise_error(ArgumentError, /^No logger provided/)
       end
 
       context "in a Rails app" do

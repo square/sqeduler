@@ -4,12 +4,12 @@ require "./spec/fixtures/fake_worker"
 
 RSpec.describe Sqeduler::Worker do
   def verify_callback_occured(file_path, times = 1)
-    expect(File).to exist(file_path)
+    expect(File.exist?(file_path)).to be_truthy
     expect(File.read(file_path).length).to eq(times)
   end
 
   def verify_callback_skipped(file_path)
-    expect(File).to_not exist(file_path)
+    expect(File.exist?(file_path)).to be_falsey
   end
 
   def maybe_cleanup_file(file_path)

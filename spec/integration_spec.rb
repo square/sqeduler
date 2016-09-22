@@ -27,6 +27,6 @@ RSpec.describe "Sidekiq integration" do
     end
     Process.kill("INT", pid)
     Process.wait(pid, 0)
-    expect(File).to exist(FakeWorker::JOB_RUN_PATH)
+    expect(File.exist?(FakeWorker::JOB_RUN_PATH)).to be_truthy
   end
 end
