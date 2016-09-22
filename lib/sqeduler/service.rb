@@ -71,10 +71,15 @@ module Sqeduler
       def config_scheduler
         if scheduling?
           logger.info "Initializing Sidekiq::Scheduler with schedule #{config.schedule_path}"
-          ::Sidekiq::Scheduler.rufus_scheduler_options = {
-            :trigger_lock => TriggerLock.new
-          }
-          ::Sidekiq.schedule = parse_schedule(config.schedule_path)
+          ::Sidekiq.configure_server do |config|
+            config.on(:startup) do
+              ::Sidekiq::Scheduler.rufus_scheduler_options = {
+                :trigger_lock => TriggerLock.new
+              }
+              ::Sidekiq.schedule = ::Sqeduler::Service.parse_schedule(::Sqeduler::Service.config.schedule_path)
+              ::Sidekiq::Scheduler.reload_schedule!
+            end
+          end
         else
           logger.warn "No schedule_path provided. Not starting Sidekiq::Scheduler."
         end
