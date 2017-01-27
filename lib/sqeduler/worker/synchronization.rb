@@ -22,7 +22,7 @@ module Sqeduler
       module ClassMethods
         def synchronize(mode, opts = {})
           self.synchronize_jobs_mode = mode
-          self.synchronize_jobs_timeout = opts[:timeout] || 5
+          self.synchronize_jobs_timeout = opts[:timeout] || 0
           self.synchronize_jobs_expiration = opts[:expiration]
           return if synchronize_jobs_expiration
           raise ArgumentError, ":expiration is required!"
