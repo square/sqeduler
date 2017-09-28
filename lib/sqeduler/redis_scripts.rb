@@ -32,7 +32,7 @@ module Sqeduler
                    raise "No script for #{script_name}"
         end
         # strip leading whitespace of 8 characters
-        redis.script(:load, script.gsub(/^ {8}/, ""))
+        redis.redis.script(:load, script.gsub(/^ {8}/, ""))
       end
     end
 
