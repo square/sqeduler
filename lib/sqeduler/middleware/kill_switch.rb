@@ -1,4 +1,4 @@
-require "active_support/inflector/methods"
+require "active_support/inflector"
 
 module Sqeduler
   module Middleware
