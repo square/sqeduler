@@ -1,3 +1,7 @@
+### 1.0.0 / 2017-01-27
+
+* Default lock timeout is now 0 when not set to reduce jobs backing up
+
 ### 0.3.7 / 2016-09-21
 
 * Fixed a bug introduced by sidekiq-scheduler 2.0.9 that resulted in the schedule being empty
