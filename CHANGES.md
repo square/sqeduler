@@ -1,3 +1,8 @@
+### 0.3.8 / 2018-01-10
+
+* "NoMethodError: undefined method `constantize' for ..." error fixed in tests  
+* Yard gem version updated to "~> 0.9.11" 
+
 ### 0.3.7 / 2016-09-21
 
 * Fixed a bug introduced by sidekiq-scheduler 2.0.9 that resulted in the schedule being empty
