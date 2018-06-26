@@ -5,4 +5,5 @@ gemspec
 
 group :development do
   gem "kramdown"
+  gem "rubocop", "~> 0.49.0"
 end

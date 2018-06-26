@@ -1,5 +1,5 @@
 Lint/EndAlignment:
-  AlignWith: variable
+  EnforcedStyleAlignWith: variable
 
 # Setting off false-positives :(
 Lint/UnneededDisable:
