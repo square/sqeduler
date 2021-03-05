@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 module Sqeduler
-  VERSION = "0.3.8".freeze
+  VERSION = "0.3.8"
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "spec_helper"
 require "./spec/fixtures/fake_worker"
 
@@ -16,7 +18,7 @@ RSpec.describe "Sidekiq integration" do
   end
 
   it "should start sidekiq, schedule FakeWorker, and verify that it ran" do
-    path = File.expand_path(File.dirname(__FILE__)) + "/fixtures/env.rb"
+    path = "#{__dir__}/fixtures/env.rb"
     pid = Process.spawn "bundle exec sidekiq -r #{path}"
     puts "Spawned process #{pid}"
     timeout = 30

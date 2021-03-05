@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 module Sqeduler
   # Uses eval_sha to execute server-side scripts on redis.
   # Avoids some of the potentially racey and brittle dependencies on Time-based
@@ -101,7 +102,7 @@ module Sqeduler
 
     def take_lock
       redis_pool.with do |redis|
-        redis.set(key, lock_value, :nx => true, :px => expiration_milliseconds)
+        redis.set(key, lock_value, nx: true, px: expiration_milliseconds)
       end
     end
 

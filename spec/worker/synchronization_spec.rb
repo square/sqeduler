@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "spec_helper"
 
 RSpec.describe Sqeduler::Worker::Synchronization do
@@ -7,7 +9,7 @@ RSpec.describe Sqeduler::Worker::Synchronization do
         "ParentWorker",
         Class.new do
           prepend Sqeduler::Worker::Synchronization
-          synchronize :one_at_a_time, :expiration => 10, :timeout => 1
+          synchronize :one_at_a_time, expiration: 10, timeout: 1
         end
       )
 
@@ -21,7 +23,7 @@ RSpec.describe Sqeduler::Worker::Synchronization do
     end
 
     it "should allow the child class to update the synchronize attributes" do
-      ChildWorker.synchronize :one_at_a_time, :expiration => 20, :timeout => 2
+      ChildWorker.synchronize :one_at_a_time, expiration: 20, timeout: 2
       expect(ChildWorker.synchronize_jobs_mode).to eq(:one_at_a_time)
       expect(ChildWorker.synchronize_jobs_expiration).to eq(20)
       expect(ChildWorker.synchronize_jobs_timeout).to eq(2)

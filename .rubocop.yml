@@ -1,25 +1,17 @@
+Layout/EmptyLineAfterGuardClause:
+  Enabled: false
+
+Layout/EmptyLinesAroundExceptionHandlingKeywords:
+  Enabled: false
+
 Lint/EndAlignment:
-  AlignWith: variable
+  EnforcedStyleAlignWith: variable
 
-# Setting off false-positives :(
-Lint/UnneededDisable:
+Metrics:
   Enabled: false
 
-Metrics/AbcSize:
+Naming:
   Enabled: false
-
-Metrics/ClassLength:
-  Max: 150
-
-# just a really annoying check, especially when logging
-Metrics/LineLength:
-  Max: 120
-
-Metrics/MethodLength:
-  Max: 25
-
-Style/HashSyntax:
-  EnforcedStyle: hash_rockets
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes
@@ -27,3 +19,15 @@ Style/StringLiterals:
 Style/Documentation:
   Exclude:
     - 'lib/sqeduler/version.rb'
+
+Style/NumericPredicate:
+  Enabled: false
+
+Style/IfUnlessModifier:
+  Enabled: false
+
+Style/RescueStandardError:
+  Enabled: false
+
+Style/SoleNestedConditional:
+  Enabled: false

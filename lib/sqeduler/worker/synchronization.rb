@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 require "benchmark"
 require "active_support/core_ext/class/attribute"
 
@@ -62,7 +63,7 @@ module Sqeduler
 
       # callback for when the job expiration is too short, less < time it took
       # perform the actual work
-      SCHEDULE_COLLISION_MARKER = "%s took %s but has an expiration of %p sec. Beware of race conditions!".freeze
+      SCHEDULE_COLLISION_MARKER = "%s took %s but has an expiration of %p sec. Beware of race conditions!"
       def on_schedule_collision(duration)
         Service.logger.warn(
           format(
@@ -83,15 +84,14 @@ module Sqeduler
       def perform_locked(sync_lock_key, &work)
         RedisLock.with_lock(
           sync_lock_key,
-          :expiration => self.class.synchronize_jobs_expiration,
-          :timeout => self.class.synchronize_jobs_timeout,
+          expiration: self.class.synchronize_jobs_expiration,
+          timeout: self.class.synchronize_jobs_timeout,
           &work
         )
       rescue RedisLock::LockTimeoutError
         on_lock_timeout(sync_lock_key)
       end
 
-      # rubocop:disable Metrics/AbcSize
       def time_duration(timespan)
         rest, secs = timespan.divmod(60) # self is the time difference t2 - t1
         rest, mins = rest.divmod(60)
@@ -104,7 +104,6 @@ module Sqeduler
         result << "#{secs.round(2)} Seconds" if secs > 0
         result.join(" ")
       end
-      # rubocop:enable Metrics/AbcSize
     end
   end
 end

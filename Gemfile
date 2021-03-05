@@ -1,8 +1,13 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 source "https://www.rubygems.org"
 
 gemspec
 
-group :development do
-  gem "kramdown"
-end
+gem "kramdown"
+gem "pry"
+gem "rake"
+gem "rspec", "~> 3.10"
+gem "rubocop", "1.11.0"
+gem "timecop"
+gem "yard", "~> 0.9.11"

@@ -1,9 +1,10 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 require "spec_helper"
 
 RSpec.describe Sqeduler::Service do
   let(:logger) do
-    Logger.new(STDOUT).tap { |l| l.level = Logger::DEBUG }
+    Logger.new($stdout).tap { |l| l.level = Logger::DEBUG }
   end
 
   before do
@@ -30,11 +31,11 @@ RSpec.describe Sqeduler::Service do
         allow(client_receiver).to receive(:call)
 
         described_class.config = Sqeduler::Config.new(
-          :redis_hash => REDIS_CONFIG,
-          :logger => logger,
-          :schedule_path => schedule_filepath,
-          :on_server_start => proc { |config| server_receiver.call(config) },
-          :on_client_start => proc { |config| client_receiver.call(config) }
+          redis_hash: REDIS_CONFIG,
+          logger: logger,
+          schedule_path: schedule_filepath,
+          on_server_start: proc { |config| server_receiver.call(config) },
+          on_client_start: proc { |config| client_receiver.call(config) }
         )
       end
 
@@ -73,8 +74,8 @@ RSpec.describe Sqeduler::Service do
 
     context "with pool provided in config" do
       let(:original_pool) do
-        ConnectionPool.new(:size => 10, :timeout => 0.1) do
-          Redis::Namespace.new("sqeduler", :client => Redis.new(REDIS_CONFIG))
+        ConnectionPool.new(size: 10, timeout: 0.1) do
+          Redis::Namespace.new("sqeduler", client: Redis.new(REDIS_CONFIG))
         end
       end
 
@@ -133,12 +134,12 @@ RSpec.describe Sqeduler::Service do
 
     context "when provided redis_hash has strings as keys" do
       let(:expected_redis_config) do
-        REDIS_CONFIG.merge(:namespace => "sqeduler")
+        REDIS_CONFIG.merge(namespace: "sqeduler")
       end
 
       before do
         described_class.config = Sqeduler::Config.new.tap do |config|
-          config.redis_hash = REDIS_CONFIG.map { |k, v| [k.to_s, v] }.to_h
+          config.redis_hash = REDIS_CONFIG.transform_keys(&:to_sym)
           config.logger = logger
         end
       end
@@ -150,7 +151,7 @@ RSpec.describe Sqeduler::Service do
     end
 
     context "with namespace provided in redis_hash" do
-      let(:redis_hash) { REDIS_CONFIG.merge(:namespace => "foo") }
+      let(:redis_hash) { REDIS_CONFIG.merge(namespace: "foo") }
 
       before do
         described_class.config = Sqeduler::Config.new.tap do |config|

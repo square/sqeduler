@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 require "spec_helper"
 require "./spec/fixtures/fake_worker"
 
@@ -18,8 +19,8 @@ RSpec.describe Sqeduler::Worker do
 
   before do
     Sqeduler::Service.config = Sqeduler::Config.new(
-      :redis_hash => REDIS_CONFIG,
-      :logger     => Logger.new(STDOUT).tap { |l| l.level = Logger::DEBUG }
+      redis_hash: REDIS_CONFIG,
+      logger: Logger.new($stdout).tap { |l| l.level = Logger::DEBUG }
     )
   end
 
@@ -36,8 +37,8 @@ RSpec.describe Sqeduler::Worker do
     context "synchronized workers" do
       before do
         FakeWorker.synchronize :one_at_a_time,
-                               :expiration => expiration,
-                               :timeout => timeout
+                               expiration: expiration,
+                               timeout: timeout
       end
 
       let(:expiration) { work_time * 4 }

@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 module Sqeduler
   # Extracts atomic Lua scripts for Redis.
   module RedisScripts
@@ -16,7 +17,7 @@ module Sqeduler
       redis_pool.with do |redis|
         sha = load_sha(redis, script_name)
         # all scripts return 0 or 1
-        redis.evalsha(sha, :keys => [key], :argv => [value]) == 1
+        redis.evalsha(sha, keys: [key], argv: [value]) == 1
       end
     end
 

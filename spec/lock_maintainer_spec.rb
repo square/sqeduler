@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 require "spec_helper"
 
 RSpec.describe Sqeduler::LockMaintainer do
@@ -10,7 +11,7 @@ RSpec.describe Sqeduler::LockMaintainer do
       Class.new do
         include Sidekiq::Worker
         prepend Sqeduler::Worker::Synchronization
-        synchronize :one_at_a_time, :expiration => 300, :timeout => 5
+        synchronize :one_at_a_time, expiration: 300, timeout: 5
 
         def perform(*_args)
           yield
@@ -23,7 +24,7 @@ RSpec.describe Sqeduler::LockMaintainer do
       Class.new do
         include Sidekiq::Worker
         prepend Sqeduler::Worker::Synchronization
-        synchronize :one_at_a_time, :expiration => 5, :timeout => 5
+        synchronize :one_at_a_time, expiration: 5, timeout: 5
 
         def perform
           raise "This shouldn't be called"
@@ -44,9 +45,9 @@ RSpec.describe Sqeduler::LockMaintainer do
     )
 
     Sqeduler::Service.config = Sqeduler::Config.new(
-      :redis_hash => REDIS_CONFIG,
-      :logger => Logger.new("/dev/null"),
-      :schedule_path => Pathname.new("./spec/fixtures/empty_schedule.yaml")
+      redis_hash: REDIS_CONFIG,
+      logger: Logger.new("/dev/null"),
+      schedule_path: Pathname.new("./spec/fixtures/empty_schedule.yaml")
     )
   end
 
@@ -71,7 +72,7 @@ RSpec.describe Sqeduler::LockMaintainer do
     end
 
     it "obeys the exclusive lock" do
-      lock = Sqeduler::RedisLock.new("sqeduler-lock-maintainer", :expiration => 60, :timeout => 0)
+      lock = Sqeduler::RedisLock.new("sqeduler-lock-maintainer", expiration: 60, timeout: 0)
       lock.lock
 
       expect(instance).to_not receive(:synchronize)

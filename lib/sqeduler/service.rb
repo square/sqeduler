@@ -1,11 +1,12 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 require "sidekiq"
 require "sidekiq-scheduler"
 module Sqeduler
   # Singleton class for configuring this Gem.
   class Service
     SCHEDULER_TIMEOUT = 60
-    MINIMUM_REDIS_VERSION = "2.6.12".freeze
+    MINIMUM_REDIS_VERSION = "2.6.12"
 
     class << self
       attr_accessor :config
@@ -36,7 +37,7 @@ module Sqeduler
 
             config.on(:startup) do
               ::Sidekiq::Scheduler.rufus_scheduler_options = {
-                :trigger_lock => TriggerLock.new
+                trigger_lock: TriggerLock.new
               }
               ::Sidekiq.schedule = ::Sqeduler::Service.parse_schedule(::Sqeduler::Service.config.schedule_path)
               ::Sidekiq::Scheduler.reload_schedule!
@@ -56,7 +57,7 @@ module Sqeduler
           end
 
           LockMaintainer.new.run if Service.config.maintain_locks
-          Service.config.on_server_start.call(config) if Service.config.on_server_start
+          Service.config.on_server_start&.call(config)
         end
       end
 
@@ -64,9 +65,7 @@ module Sqeduler
         logger.info "Initializing Sidekiq client"
         ::Sidekiq.configure_client do |config|
           setup_sidekiq_redis(config)
-          if Service.config.on_client_start
-            Service.config.on_client_start.call(config)
-          end
+          Service.config.on_client_start&.call(config)
 
           config.client_middleware do |chain|
             chain.add(Sqeduler::Middleware::KillSwitch)
@@ -82,7 +81,7 @@ module Sqeduler
       def parse_schedule(path)
         raise "Schedule file #{path} does not exist!" unless File.exist?(path)
         file_contents = File.read(path)
-        YAML.load(ERB.new(file_contents).result)
+        YAML.safe_load(ERB.new(file_contents).result)
       end
 
       def scheduling?
@@ -102,7 +101,7 @@ module Sqeduler
           config.redis_pool
         else
           # Redis requires config hash to have symbols as keys.
-          redis = { :namespace => "sqeduler" }.merge(symbolize_keys(config.redis_hash))
+          redis = { namespace: "sqeduler" }.merge(symbolize_keys(config.redis_hash))
           ::Sidekiq::RedisConnection.create(redis)
         end
         verify_redis_pool(redis_pool)
@@ -118,7 +117,7 @@ module Sqeduler
       private
 
       def symbolize_keys(hash)
-        hash.map { |k, v| [k.to_sym, v] }.to_h
+        hash.transform_keys(&:to_sym)
       end
     end
   end
