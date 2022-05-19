@@ -21,7 +21,7 @@ Gem::Specification.new do |gem|
 
   gem.add_runtime_dependency "sidekiq"
   gem.add_runtime_dependency "redis-namespace"
-  gem.add_runtime_dependency "sidekiq-scheduler", ">= 2.0", "< 4.0"
+  gem.add_runtime_dependency "sidekiq-scheduler", ">= 2.0", "< 5.0"
   gem.add_runtime_dependency "activesupport"
 
   gem.add_development_dependency "bundler"

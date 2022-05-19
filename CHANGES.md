@@ -1,3 +1,6 @@
+### 0.3.8 / 2022-05-19
+* Support sidekiq-scheduler 4
+
 ### 0.3.8 / 2018-01-10
 
 * "NoMethodError: undefined method `constantize' for ..." error fixed in tests  
