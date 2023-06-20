@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 require "active_support"
 require "sqeduler/version"
 require "sqeduler/config"

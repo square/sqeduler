@@ -1,4 +1,4 @@
-# encoding: utf-8
+# frozen_string_literal: true
 
 require "bundler/gem_tasks"
 
@@ -11,4 +11,4 @@ RuboCop::RakeTask.new
 require "yard"
 task :doc => :yard
 
-task :default => [:spec, :rubocop]
+task :default => %i[spec rubocop]

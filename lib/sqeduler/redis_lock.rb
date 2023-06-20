@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 module Sqeduler
   # Uses eval_sha to execute server-side scripts on redis.
   # Avoids some of the potentially racey and brittle dependencies on Time-based
@@ -14,6 +15,7 @@ module Sqeduler
       @key = key
       @expiration = options[:expiration]
       raise ArgumentError, "Expiration must be provided!" unless @expiration
+
       @timeout = options[:timeout] || 5
     end
 
@@ -22,6 +24,7 @@ module Sqeduler
         "Try to acquire lock with #{key}, expiration: #{@expiration} sec, timeout: #{timeout} sec"
       )
       return true if locked?
+
       if poll_for_lock
         Service.logger.info "Acquired lock #{key} with value #{lock_value}"
         true
@@ -65,10 +68,12 @@ module Sqeduler
 
     def self.with_lock(key, options)
       raise "Block is required" unless block_given?
+
       mutex = new(key, options)
       unless mutex.lock
         raise LockTimeoutError, "Timed out trying to get #{key} lock. Exceeded #{mutex.timeout} sec"
       end
+
       begin
         yield
       ensure
@@ -93,6 +98,7 @@ module Sqeduler
       while Time.now - start < timeout || !ran_at_least_once
         locked = take_lock
         break if locked
+
         ran_at_least_once = true
         sleep SLEEP_TIME
       end

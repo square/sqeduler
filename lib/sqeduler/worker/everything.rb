@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Sqeduler
   module Worker
     # convenience module for including everything

@@ -1,28 +1,32 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 require "sidekiq"
 require "sidekiq-scheduler"
 module Sqeduler
   # Singleton class for configuring this Gem.
   class Service
     SCHEDULER_TIMEOUT = 60
-    MINIMUM_REDIS_VERSION = "2.6.12".freeze
+    MINIMUM_REDIS_VERSION = "2.6.12"
 
     class << self
       attr_accessor :config
 
       def start
         raise "No config provided" unless config
+
         config_sidekiq_server
         config_sidekiq_client
       end
 
       def verify_redis_pool(redis_pool)
         return @verified if defined?(@verified)
+
         redis_pool.with do |redis|
           version = redis.info["redis_version"]
           unless Gem::Version.new(version) >= Gem::Version.new(MINIMUM_REDIS_VERSION)
             raise "Must be using redis >= #{MINIMUM_REDIS_VERSION}"
           end
+
           @verified = true
         end
       end
@@ -56,7 +60,7 @@ module Sqeduler
           end
 
           LockMaintainer.new.run if Service.config.maintain_locks
-          Service.config.on_server_start.call(config) if Service.config.on_server_start
+          Service.config.on_server_start&.call(config)
         end
       end
 
@@ -64,9 +68,7 @@ module Sqeduler
         logger.info "Initializing Sidekiq client"
         ::Sidekiq.configure_client do |config|
           setup_sidekiq_redis(config)
-          if Service.config.on_client_start
-            Service.config.on_client_start.call(config)
-          end
+          Service.config.on_client_start&.call(config)
 
           config.client_middleware do |chain|
             chain.add(Sqeduler::Middleware::KillSwitch)
@@ -76,13 +78,15 @@ module Sqeduler
 
       def setup_sidekiq_redis(config)
         return if Service.config.redis_hash.nil? || Service.config.redis_hash.empty?
+
         config.redis = Service.config.redis_hash
       end
 
       def parse_schedule(path)
         raise "Schedule file #{path} does not exist!" unless File.exist?(path)
+
         file_contents = File.read(path)
-        YAML.load(ERB.new(file_contents).result)
+        YAML.safe_load(ERB.new(file_contents).result)
       end
 
       def scheduling?
@@ -112,13 +116,14 @@ module Sqeduler
       def logger
         return config.logger if config.logger
         return Rails.logger if defined?(Rails)
+
         raise ArgumentError, "No logger provided and Rails.logger cannot be inferred"
       end
 
       private
 
       def symbolize_keys(hash)
-        hash.map { |k, v| [k.to_sym, v] }.to_h
+        hash.transform_keys(&:to_sym)
       end
     end
   end

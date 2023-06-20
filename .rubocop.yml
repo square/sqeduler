@@ -1,8 +1,17 @@
+Gemspec/RequiredRubyVersion:
+  Enabled: false
+
+Layout/HashAlignment:
+  Enabled: false
+
+Layout/LineLength:
+  Enabled: false
+
 Lint/EndAlignment:
-  AlignWith: variable
+  EnforcedStyleAlignWith: variable
 
 # Setting off false-positives :(
-Lint/UnneededDisable:
+Lint/RedundantCopDisableDirective:
   Enabled: false
 
 Metrics/AbcSize:
@@ -11,15 +20,29 @@ Metrics/AbcSize:
 Metrics/ClassLength:
   Max: 150
 
-# just a really annoying check, especially when logging
-Metrics/LineLength:
-  Max: 120
-
 Metrics/MethodLength:
   Max: 25
 
+Metrics/BlockLength:
+  Enabled: false
+
+Naming:
+  Enabled: false
+
+Style/GlobalStdStream:
+  Enabled: false
+
 Style/HashSyntax:
   EnforcedStyle: hash_rockets
+
+Style/IfUnlessModifier:
+  Enabled: false
+
+Style/NumericPredicate:
+  Enabled: false
+
+Style/SoleNestedConditional:
+  Enabled: false
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes

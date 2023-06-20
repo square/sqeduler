@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 module Sqeduler
   # This is to ensure that if you set your jobs to run one a time and something goes wrong
   # causing a job to run for a long time, your lock won't expire.
@@ -6,7 +7,7 @@ module Sqeduler
   # rather than 20 of them.
   class LockMaintainer
     RUN_INTERVAL = 30
-    RUN_JITTER = 1..5
+    RUN_JITTER = (1..5).freeze
 
     def initialize
       @class_with_locks = {}
@@ -24,8 +25,7 @@ module Sqeduler
                 redis_lock.unlock
               end
             end
-
-          rescue => ex
+          rescue StandardError => ex
             Service.logger.error "[#{self.class}] #{ex.class}, #{ex.message}"
           end
 

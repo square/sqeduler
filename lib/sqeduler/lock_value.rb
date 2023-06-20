@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 module Sqeduler
   # A unique lock value for reserving a lock across multiple hosts
   class LockValue

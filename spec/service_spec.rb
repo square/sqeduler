@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 require "spec_helper"
 
 RSpec.describe Sqeduler::Service do
@@ -138,7 +139,7 @@ RSpec.describe Sqeduler::Service do
 
       before do
         described_class.config = Sqeduler::Config.new.tap do |config|
-          config.redis_hash = REDIS_CONFIG.map { |k, v| [k.to_s, v] }.to_h
+          config.redis_hash = REDIS_CONFIG.transform_keys(&:to_s)
           config.logger = logger
         end
       end
