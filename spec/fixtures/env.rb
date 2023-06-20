@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "sqeduler"
 require_relative "fake_worker"
 
@@ -10,7 +12,7 @@ Sqeduler::Service.config = Sqeduler::Config.new(
     :namespace => "sqeduler-tests"
   },
   :logger => Sidekiq.logger,
-  :schedule_path => File.expand_path(File.dirname(__FILE__)) + "/schedule.yaml",
+  :schedule_path => "#{__dir__}/schedule.yaml",
   :on_server_start => proc do |_config|
     Sqeduler::Service.logger.info "Received on_server_start callback"
   end,

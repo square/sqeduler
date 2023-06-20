@@ -1,9 +1,10 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 module Sqeduler
   # Super simple facade to match RufusScheduler's expectations of how
   # a trigger_lock behaves.
   class TriggerLock < RedisLock
-    SCHEDULER_LOCK_KEY = "sidekiq_scheduler_lock".freeze
+    SCHEDULER_LOCK_KEY = "sidekiq_scheduler_lock"
 
     def initialize
       super(SCHEDULER_LOCK_KEY, :expiration => 60, :timeout => 0)
@@ -15,7 +16,7 @@ module Sqeduler
       # - return true if already acquired
       # - refresh the lock if already acquired
       refresh || super
-    rescue
+    rescue StandardError
       false
     end
   end

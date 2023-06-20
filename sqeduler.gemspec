@@ -1,5 +1,6 @@
-# encoding: utf-8
-require File.expand_path("../lib/sqeduler/version", __FILE__)
+# frozen_string_literal: true
+
+require File.expand_path("lib/sqeduler/version", __dir__)
 
 Gem::Specification.new do |gem|
   gem.name          = "sqeduler"
@@ -19,16 +20,8 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{(test|spec|features)/})
   gem.require_paths = ["lib"]
 
-  gem.add_runtime_dependency "sidekiq", "< 7"
-  gem.add_runtime_dependency "redis-namespace"
-  gem.add_runtime_dependency "sidekiq-scheduler", ">= 2.0", "< 6.0"
   gem.add_runtime_dependency "activesupport"
-
-  gem.add_development_dependency "bundler"
-  gem.add_development_dependency "pry", "~> 0"
-  gem.add_development_dependency "rake", "~> 10"
-  gem.add_development_dependency "rspec", "~> 3.3"
-  gem.add_development_dependency "rubocop", "~> 0.39.0"
-  gem.add_development_dependency "timecop", "~> 0"
-  gem.add_development_dependency "yard", "~> 0.9.11"
+  gem.add_runtime_dependency "redis-namespace"
+  gem.add_runtime_dependency "sidekiq", "< 7"
+  gem.add_runtime_dependency "sidekiq-scheduler", ">= 2.0", "< 6.0"
 end

@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 require "benchmark"
 require "active_support/core_ext/class/attribute"
 
@@ -25,6 +26,7 @@ module Sqeduler
           self.synchronize_jobs_timeout = opts[:timeout] || 5
           self.synchronize_jobs_expiration = opts[:expiration]
           return if synchronize_jobs_expiration
+
           raise ArgumentError, ":expiration is required!"
         end
 
@@ -62,7 +64,7 @@ module Sqeduler
 
       # callback for when the job expiration is too short, less < time it took
       # perform the actual work
-      SCHEDULE_COLLISION_MARKER = "%s took %s but has an expiration of %p sec. Beware of race conditions!".freeze
+      SCHEDULE_COLLISION_MARKER = "%s took %s but has an expiration of %p sec. Beware of race conditions!"
       def on_schedule_collision(duration)
         Service.logger.warn(
           format(

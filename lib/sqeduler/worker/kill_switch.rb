@@ -1,14 +1,16 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 module Sqeduler
   module Worker
     # Uses Redis hashes to enabled and disable workers across multiple hosts.
     module KillSwitch
-      SIDEKIQ_DISABLED_WORKERS = "sidekiq.disabled-workers".freeze
+      SIDEKIQ_DISABLED_WORKERS = "sidekiq.disabled-workers"
 
       def self.prepended(base)
         if base.ancestors.include?(Sqeduler::Worker::Callbacks)
           raise "Sqeduler::Worker::Callbacks must be the last module that you prepend."
         end
+
         base.extend(ClassMethods)
       end
 
