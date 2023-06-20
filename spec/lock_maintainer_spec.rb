@@ -154,7 +154,7 @@ RSpec.describe Sqeduler::LockMaintainer do
 
         # Shouldn't be around once the job finished
         Sqeduler::Service.redis_pool.with do |redis|
-          expect(redis.exists(lock_key)).to eq(false)
+          expect(redis.exists(lock_key)).to eq(0)
         end
       end
     end

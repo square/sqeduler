@@ -29,7 +29,7 @@ module Sqeduler
 
         def disable
           Service.redis_pool.with do |redis|
-            redis.hset(SIDEKIQ_DISABLED_WORKERS, name, Time.now)
+            redis.hset(SIDEKIQ_DISABLED_WORKERS, name, Time.now.to_s)
             Service.logger.warn "#{name} has been disabled"
           end
         end

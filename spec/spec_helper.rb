@@ -1,5 +1,6 @@
 # encoding: utf-8
 require "pry"
+require "redis"
 require "rspec"
 require "sqeduler"
 require "timecop"

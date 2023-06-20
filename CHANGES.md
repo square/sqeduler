@@ -1,4 +1,7 @@
-### 0.3.8 / 2022-05-19
+### 0.3.10 / 2023-06-20
+* Support sidekiq-scheduler 5
+
+### 0.3.9 / 2022-05-19
 * Support sidekiq-scheduler 4
 
 ### 0.3.8 / 2018-01-10

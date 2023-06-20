@@ -19,9 +19,9 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{(test|spec|features)/})
   gem.require_paths = ["lib"]
 
-  gem.add_runtime_dependency "sidekiq"
+  gem.add_runtime_dependency "sidekiq", "< 7"
   gem.add_runtime_dependency "redis-namespace"
-  gem.add_runtime_dependency "sidekiq-scheduler", ">= 2.0", "< 5.0"
+  gem.add_runtime_dependency "sidekiq-scheduler", ">= 2.0", "< 6.0"
   gem.add_runtime_dependency "activesupport"
 
   gem.add_development_dependency "bundler"
